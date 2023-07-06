@@ -220,10 +220,20 @@ class MovingDots(Scene):
         x = ValueTracker(0)
         y = ValueTracker(0)
         d1.add_updater(lambda z: z.set_x(x.get_value()))
-        d2.add_updater(lambda z: z.set_y(y.get_value()))
-        l1.add_updater(lambda z: z.become(Line(d1.get_center(), d2.get_center())))
+        #d2.add_updater(lambda z: z.set_y(y.get_value()))
+        #l1.add_updater(lambda z: z.become(Line(d1.get_center(), d2.get_center())))
 
-        self.add(d1, d2, l1)
+        self.add(d1)#, d2, l1)
         self.play(x.animate.set_value(5))
-        self.play(y.animate.set_value(4))
+        #self.play(y.animate.set_value(4))
         self.wait()
+
+class MovingGroupToDestination(Scene):
+    def construct(self):
+        group = VGroup(Dot(LEFT), Dot(ORIGIN), Dot(RIGHT,), Dot(2 * RIGHT)).scale(1.4)
+
+        dest = Dot([4,3,0], color = YELLOW)
+        self.add(group, dest)
+
+        self.play(group.animate.shift(dest.get_center() - group[2].get_center()))
+        self.wait(0.5)
