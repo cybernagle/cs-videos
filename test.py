@@ -277,16 +277,6 @@ class RotationUpdater(Scene):
         self.wait(2)
 
 
-class MemVisualization(Scene):
-    def construct(self):
-        vmem = Rectangle(color=BLUE, fill_opacity=0.1, width=2.0, height=4.0, grid_xstep=2.0, grid_ystep=0.5).shift(4*LEFT)
-        pmem = Rectangle(color=YELLOW, fill_opacity=0.1, width=2.0, height=4.0, grid_xstep=2.0, grid_ystep=0.5).shift(4*RIGHT)
-        page_table = Rectangle(color=GREEN, fill_opacity=0.1, width=2.0, height=2.0, grid_xstep=1.0, grid_ystep=0.5)
-
-        self.play(Create(vmem))
-        self.play(Create(pmem))
-        self.play(Create(page_table))
-        self.wait()
 
 class MovingZoomedSceneAround(ZoomedScene):
     def __init__(self, **kwargs):
@@ -341,6 +331,11 @@ class MemoryVisualization(Scene):
 
         self.play(Create(clang))
         self.play(clang.animate.shift(DOWN*2))
+        self.wait(1)
+        compile = Text("编译后...", color=RED)
+        self.add(compile)
+        self.wait(0.5)
+        self.remove(compile)
         self.play(
             ReplacementTransform(clang, asm), run_time=2
         )
@@ -348,6 +343,8 @@ class MemoryVisualization(Scene):
         heightlight = SurroundingRectangle(asm[-5:-1], RED, buff = .1)
 
         self.play(Create(heightlight))
+
+        self.wait(1)
 
         address = Rectangle(color=RED, fill_opacity=0.5, width=2, height=0.5)
         self.play(ReplacementTransform(asm, address), FadeOut(heightlight))
@@ -359,7 +356,7 @@ class MemoryVisualization(Scene):
         self.play(mem_group.animate.shift(LEFT*4))
 
         rbp_addr = Tex(r"$rbp = \texttt{0x4567} \rightarrow$", font_size = 36).next_to(address, RIGHT, buff = 0.1)
-        self.add(rbp_addr)
+        self.play(Create(rbp_addr))
 
         self.wait(1)
         binary = MathTable(
@@ -384,6 +381,7 @@ class MemoryVisualization(Scene):
 
         self.play(Create(binary))
         self.play(Create(vpn), Create(offset))
+        self.wait(1)
         # 把 binary 和 rbp 和内存都group 一下移动到屏幕上方.
         binary_group = VGroup(binary, vpn, offset)
 
@@ -401,9 +399,12 @@ class MemoryVisualization(Scene):
         ).set_column_colors(YELLOW).scale(0.3)
 
 
-        self.add(page_table, Text("页表", font_size=20).next_to(page_table,DOWN, buff=0.1))
+        self.play(Create(page_table), Create(Text("页表", font_size=20).next_to(page_table,DOWN, buff=0.1)))
+        self.wait(1)
         self.play(Indicate(vpn))
+        self.wait(1)
         self.play(Indicate(page_table.get_cell((3,1))))
+        self.wait(1)
         self.play(Indicate(page_table.get_cell((3,2))))
 
         pfn = MathTable(
