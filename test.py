@@ -49,7 +49,7 @@ class RectangleExample(Scene):
 
 class LagRatios(Scene):
     def construct(self):
-        ratios = [0, 0.1, 0.5, 1, 2]
+        ratios = [0, 0.3, 0.6, 0.9, 1.2]
 
         group = VGroup(*[Dot() for _ in range(4)]).arrange_submobjects()
         groups = VGroup(*[group.copy() for _ in ratios]).arrange_submobjects(buff=0.5)
@@ -62,6 +62,7 @@ class LagRatios(Scene):
         self.play(AnimationGroup(*[
             group.animate(lag_ratio=ratio, run_time=1.5).shift(DOWN*2)
             for group, ratio in zip(groups, ratios)
+
         ]))
 
         self.play(groups.animate(run_time=1, lag_ratio=0.1).shift(UP*2))
@@ -216,7 +217,7 @@ class MovingDots(Scene):
     def construct(self):
         d1, d2 = Dot(color=BLUE), Dot(color=GREEN)
         dg = VGroup(d1,d2).arrange(RIGHT,buff=1)
-        l1 = Line(d1.get_center(), d2.get_center()).set_color(RED)
+        #l1 = Line(d1.get_center(), d2.get_center()).set_color(RED)
         x = ValueTracker(0)
         y = ValueTracker(0)
         d1.add_updater(lambda z: z.set_x(x.get_value()))
@@ -237,3 +238,201 @@ class MovingGroupToDestination(Scene):
 
         self.play(group.animate.shift(dest.get_center() - group[2].get_center()))
         self.wait(0.5)
+
+
+class MovingFrameBox(Scene):
+    def construct(self):
+        text = MathTex(
+            "\\frac{d}{dx}f(x)g(x)=", "f(x)\\frac{d}{dx}g(x)","+",
+            "g(x)\\frac{d}{dx}f(x)"
+        )
+        self.play(Write(text))
+        framebox1 = SurroundingRectangle(text[1], buff = .1)
+        framebox2 = SurroundingRectangle(text[3], buff= .1)
+        self.play(Create(framebox1))
+        self.wait()
+        self.play(
+            ReplacementTransform(framebox1, framebox2),
+        )
+        self.wait()
+
+class RotationUpdater(Scene):
+    def construct(self):
+        def update_forth(mobj,dt):
+            mobj.rotate_about_origin(dt)
+        def update_back(mobj, dt):
+            mobj.rotate_about_origin(-dt)
+
+        line_reference = Line(ORIGIN, LEFT).set_color(WHITE)
+        line_moving = line_reference.copy().set_color(YELLOW)#Line(ORIGIN,LEFT).set_color(YELLOW)
+
+        self.add(line_reference, line_moving)
+
+        line_moving.add_updater(update_forth)
+        self.wait(4)
+        line_moving.remove_updater(update_forth)
+        line_moving.add_updater(update_back)
+        self.wait(4)
+        line_moving.remove_updater(update_back)
+        self.wait(2)
+
+
+class MemVisualization(Scene):
+    def construct(self):
+        vmem = Rectangle(color=BLUE, fill_opacity=0.1, width=2.0, height=4.0, grid_xstep=2.0, grid_ystep=0.5).shift(4*LEFT)
+        pmem = Rectangle(color=YELLOW, fill_opacity=0.1, width=2.0, height=4.0, grid_xstep=2.0, grid_ystep=0.5).shift(4*RIGHT)
+        page_table = Rectangle(color=GREEN, fill_opacity=0.1, width=2.0, height=2.0, grid_xstep=1.0, grid_ystep=0.5)
+
+        self.play(Create(vmem))
+        self.play(Create(pmem))
+        self.play(Create(page_table))
+        self.wait()
+
+class MovingZoomedSceneAround(ZoomedScene):
+    def __init__(self, **kwargs):
+        ZoomedScene.__init__(
+            self,
+            zoom_factor = 0.3,
+            zoomed_display_height = 1,
+            zoomed_display_width = 6,
+            image_frame_stroke_width = 20,
+            zoomed_camera_config = {
+                "default_frame_stroke_width": 3
+            },
+            **kwargs
+        )
+    def construct(self):
+        dot = Dot().shift(UL*2)
+        image = ImageMobject(np.uint8([[0, 100, 30, 200],
+                                       [255, 0, 5, 33]
+                                       ]))
+        image.height = 7
+        frame_text = Text("Frame", color = PURPLE, font_size = 67)
+        zoomed_camera_text = Text("Zoomed camera", color = RED, font_size = 67)
+
+        self.add(image, dot)
+
+        zoomed_camera = self.zoomed_camera
+        zoomed_display = self.zoomed_display
+        frame = zoomed_camera.frame
+        zoomed_display_frame = zoomed_display.display_frame
+
+        frame.move_to(dot)
+        frame.set_color(PURPLE)
+        zoomed_display_frame.set_color(RED)
+        zoomed_display.shift(DOWN)
+
+        zd_rect = BackgroundRectangle(zoomed_display, fill_opacity=0, buff = MED_SMALL_BUFF)
+        unfold_camera = UpdateFromFunc(zd_rect, lambda rect: rect.replace(zoomed_display))
+
+        frame_text.next_to(frame, DOWN)
+        self.play(Create(frame), FadeIn(frame_text, shift=UP))
+        self.wait()
+
+
+
+class MemoryVisualization(Scene):
+    def construct(self):
+        clang = Code("main.c", color=WHITE).shift(2*UP)
+        self.add(clang)
+        asm  = Text("mov 0x1,-0x4(%rpb)")
+
+        reg = asm[-5:]
+
+        self.play(Create(clang))
+        self.play(clang.animate.shift(DOWN*2))
+        self.play(
+            ReplacementTransform(clang, asm), run_time=2
+        )
+
+        heightlight = SurroundingRectangle(asm[-5:-1], RED, buff = .1)
+
+        self.play(Create(heightlight))
+
+        address = Rectangle(color=RED, fill_opacity=0.5, width=2, height=0.5)
+        self.play(ReplacementTransform(asm, address), FadeOut(heightlight))
+
+        main_mem = Rectangle(color=BLUE, fill_opacity=0.1, width=2, height=4, grid_xstep=2.0, grid_ystep=0.5).shift(DOWN*0.25)
+        self.play(Create(main_mem))
+
+        mem_group = VGroup(address, main_mem)
+        self.play(mem_group.animate.shift(LEFT*4))
+
+        rbp_addr = Tex(r"$rbp = \texttt{0x4567} \rightarrow$", font_size = 36).next_to(address, RIGHT, buff = 0.1)
+        self.add(rbp_addr)
+
+        self.wait(1)
+        binary = MathTable(
+            [["0","1","0","0","0","1","0","1","0","1","1","0","0","1","1","1"]],
+            include_outer_lines=True,
+            v_buff=0.1,
+            h_buff=0.1
+        ).next_to(rbp_addr, RIGHT, buff = 0.1)
+
+
+        binary.add_highlighted_cell((0,1), color=YELLOW)
+        binary.add_highlighted_cell((0,2), color=YELLOW)
+        binary.add_highlighted_cell((0,3), color=YELLOW)
+        binary.add_highlighted_cell((0,4), color=YELLOW)
+
+        # 为 binary 打上标签.
+        vpn = Text("虚拟页号VPN", color=YELLOW , font_size=20)
+        vpn.next_to(binary.get_cell((0,2)), DOWN, buff = 0.1)
+
+        offset = Text("偏移量OffSet", color=WHITE, font_size=20)
+        offset.next_to(binary.get_cell((0,11)), DOWN, buff=0.1)
+
+        self.play(Create(binary))
+        self.play(Create(vpn), Create(offset))
+        # 把 binary 和 rbp 和内存都group 一下移动到屏幕上方.
+        binary_group = VGroup(binary, vpn, offset)
+
+        vm_group = VGroup(mem_group, rbp_addr, binary_group)
+        self.play(vm_group.animate.shift(UP * 2))
+
+        # 创建一个页表
+        page_table = Table(
+            [["0110", "1001"],
+             ["0100", "0110"],
+             ["0101", "0010"],
+             ["0000", "1000"]],
+            col_labels=[Text("VPN"), Text("PFN")],
+            include_outer_lines=True
+        ).set_column_colors(YELLOW).scale(0.3)
+
+
+        self.add(page_table, Text("页表", font_size=20).next_to(page_table,DOWN, buff=0.1))
+        self.play(Indicate(vpn))
+        self.play(Indicate(page_table.get_cell((3,1))))
+        self.play(Indicate(page_table.get_cell((3,2))))
+
+        pfn = MathTable(
+            [["0","1","1","0"]],
+            include_outer_lines=True,
+            v_buff=0.1,
+            h_buff=0.1
+        ).shift(DOWN*2).shift(RIGHT*0.5).set_row_colors(YELLOW)
+
+        # moving from page table
+        pfn_from_pt = page_table.get_cell((3,2)).copy()
+        self.play(pfn_from_pt.animate.scale(2).move_to(DOWN*2))
+        self.play(Transform(pfn_from_pt, pfn))
+
+
+        # moving from binary
+        offset_from_binary = binary.get_rows()[0][-12:]
+        self.play(offset_from_binary.animate.move_to(DOWN*2+RIGHT*2.8))
+        pfn_offset = MathTable(
+            [["0","1","0","1","0","1","1","0","0","1","1","1"]],
+            include_outer_lines=True,
+            v_buff=0.1,
+            h_buff=0.1
+        )
+        pfn_offset.next_to(pfn, RIGHT, buff=0)
+        self.play(offset_from_binary.animate.move_to(pfn_offset))
+        self.play(Create(pfn_offset))
+        self.remove(offset_from_binary)
+
+        self.play(Create(Text("物理地址", font_size = 20).next_to(pfn_offset[8], DOWN, buff=0.1)))
+
+        self.wait()
