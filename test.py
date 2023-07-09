@@ -1,4 +1,7 @@
 from manim import *
+from manim_voiceover import VoiceoverScene
+from manim_voiceover.services.recorder import RecorderService
+
 
 class CreateCircle(Scene):
     def construct(self):
@@ -319,44 +322,47 @@ class MovingZoomedSceneAround(ZoomedScene):
         self.play(Create(frame), FadeIn(frame_text, shift=UP))
         self.wait()
 
-
-
-class MemoryVisualization(Scene):
+class MemoryVisualization(VoiceoverScene):
     def construct(self):
+        # You can choose from a multitude of TTS services,
+        # or in this example, record your own voice:
+        self.set_speech_service(RecorderService())
+
         clang = Code("main.c", color=WHITE).shift(2*UP)
-        self.add(clang)
         asm  = Text("mov 0x1,-0x4(%rpb)")
 
-        reg = asm[-5:]
+        with self.voiceover(text="这是一小段C代码") as tracker:
+            self.play(Create(clang))
+            self.play(clang.animate.shift(DOWN*2))
+            self.wait(2)
 
-        self.play(Create(clang))
-        self.play(clang.animate.shift(DOWN*2))
-        self.wait(1)
-        compile = Text("编译后...", color=RED)
-        self.add(compile)
-        self.wait(0.5)
-        self.remove(compile)
-        self.play(
-            ReplacementTransform(clang, asm), run_time=2
-        )
+        with self.voiceover(text=" 其中第四行代码 a =1 在经过编译以后,我们可以得到这条指令") as tracker:
+            self.play(
+                ReplacementTransform(clang, asm), run_time=2
+            )
 
+        reg = asm[-5:-1].copy()
         heightlight = SurroundingRectangle(asm[-5:-1], RED, buff = .1)
 
-        self.play(Create(heightlight))
-
-        self.wait(1)
+        with self.voiceover(text=" 请注意看 rbp 这个寄存器, 它存储了 a 的虚拟地址") as tracker:
+            self.play(Create(heightlight))
 
         address = Rectangle(color=RED, fill_opacity=0.5, width=2, height=0.5)
-        self.play(ReplacementTransform(asm, address), FadeOut(heightlight))
+
+        with self.voiceover(text=" 这个虚拟地址指向了黄色的这块区域") as tracker:
+            self.play(ReplacementTransform(asm, address), FadeOut(heightlight))
 
         main_mem = Rectangle(color=BLUE, fill_opacity=0.1, width=2, height=4, grid_xstep=2.0, grid_ystep=0.5).shift(DOWN*0.25)
-        self.play(Create(main_mem))
+        with self.voiceover(text=" 这是该区域在虚拟内存当中的位置.") as tracker:
+            self.play(Create(main_mem))
 
         mem_group = VGroup(address, main_mem)
         self.play(mem_group.animate.shift(LEFT*4))
 
         rbp_addr = Tex(r"$rbp = \texttt{0x4567} \rightarrow$", font_size = 36).next_to(address, RIGHT, buff = 0.1)
-        self.play(Create(rbp_addr))
+
+        with self.voiceover(text=" 我们假设这块区域的地址是 0x4567.") as tracker:
+            self.play(Create(rbp_addr))
 
         self.wait(1)
         binary = MathTable(
@@ -379,9 +385,10 @@ class MemoryVisualization(Scene):
         offset = Text("偏移量OffSet", color=WHITE, font_size=20)
         offset.next_to(binary.get_cell((0,11)), DOWN, buff=0.1)
 
-        self.play(Create(binary))
-        self.play(Create(vpn), Create(offset))
-        self.wait(1)
+        with self.voiceover(text=" 地址 4567 被转换成二进制后如图所示") as tracker:
+            self.play(Create(binary))
+        with self.voiceover(text=" 其中前四位也就是黄色区域是虚拟页号, 后面 12 位白色的是偏移量, 代表在一个页里面的位置.") as tracker:
+            self.play(Create(vpn), Create(offset))
         # 把 binary 和 rbp 和内存都group 一下移动到屏幕上方.
         binary_group = VGroup(binary, vpn, offset)
 
@@ -399,13 +406,14 @@ class MemoryVisualization(Scene):
         ).set_column_colors(YELLOW).scale(0.3)
 
 
-        self.play(Create(page_table), Create(Text("页表", font_size=20).next_to(page_table,DOWN, buff=0.1)))
-        self.wait(1)
-        self.play(Indicate(vpn))
-        self.wait(1)
-        self.play(Indicate(page_table.get_cell((3,1))))
-        self.wait(1)
-        self.play(Indicate(page_table.get_cell((3,2))))
+        with self.voiceover(text=" 这是我们的页表") as tracker:
+            self.play(Create(page_table), Create(Text("页表", font_size=20).next_to(page_table,DOWN, buff=0.1)))
+        with self.voiceover(text=" 根据虚拟地址里面的虚拟页号") as tracker:
+            self.play(Indicate(vpn))
+        with self.voiceover(text=" 我们找到在对应页表中的位置") as tracker:
+            self.play(Indicate(page_table.get_cell((3,1))))
+        with self.voiceover(text=" 然后, 我们就可以找到对应的物理页真") as tracker:
+            self.play(Indicate(page_table.get_cell((3,2))))
 
         pfn = MathTable(
             [["0","1","1","0"]],
@@ -416,13 +424,16 @@ class MemoryVisualization(Scene):
 
         # moving from page table
         pfn_from_pt = page_table.get_cell((3,2)).copy()
-        self.play(pfn_from_pt.animate.scale(2).move_to(DOWN*2))
-        self.play(Transform(pfn_from_pt, pfn))
+
+        with self.voiceover(text=" 紧接着, 我们取出物理页真") as tracker:
+            self.play(pfn_from_pt.animate.scale(2).move_to(DOWN*2))
+            self.play(Transform(pfn_from_pt, pfn))
 
 
         # moving from binary
         offset_from_binary = binary.get_rows()[0][-12:]
         self.play(offset_from_binary.animate.move_to(DOWN*2+RIGHT*2.8))
+
         pfn_offset = MathTable(
             [["0","1","0","1","0","1","1","0","0","1","1","1"]],
             include_outer_lines=True,
@@ -430,10 +441,143 @@ class MemoryVisualization(Scene):
             h_buff=0.1
         )
         pfn_offset.next_to(pfn, RIGHT, buff=0)
-        self.play(offset_from_binary.animate.move_to(pfn_offset))
-        self.play(Create(pfn_offset))
-        self.remove(offset_from_binary)
 
-        self.play(Create(Text("物理地址", font_size = 20).next_to(pfn_offset[8], DOWN, buff=0.1)))
+        with self.voiceover(text=" 把物理页者和虚拟地址当中的偏移量组合起来, 我们就得到了相应的物理地址,这就是虚拟地址通过页表转换成物理地址的过程.") as tracker:
+            self.play(offset_from_binary.animate.move_to(pfn_offset))
+            self.play(Create(pfn_offset))
+            self.remove(offset_from_binary)
+
+            self.play(Create(Text("物理地址", font_size = 20).next_to(pfn_offset[8], DOWN, buff=0.1)))
 
         self.wait()
+
+
+class LangChain(Scene):
+    def construct(self):
+        pass
+
+
+class DiffBetweenForkAndExec(Scene):
+    def construct(self):
+        pass
+
+
+class Scheduling(Scene):
+    def construct(self):
+        # 首先说进程被执行?
+        # 这是多个进程, 他们都将被调度程序调度到 CPU 上执行.
+        p1 = Rectangle(color=GREEN, fill_opacity=0.5, width = 2, height = 0.5)
+        self.play(p1.animate.scale(0.5).move_to(LEFT * 5.5 + UP * 1.5))
+        p1_text = Text("进程x: 1day", font_size = 20).next_to(p1, DOWN)
+        self.play(FadeIn(p1_text))
+        p1_group = Group(p1, p1_text)
+
+        p2 = Rectangle(color=GREEN, fill_opacity=0.5, width = 4, height = 0.5)
+        self.play(p2.animate.scale(0.5).next_to(p1,DOWN, buff = p1.height * 4))
+        p2_text = Text("进程y: 2day", font_size = 20).next_to(p2, DOWN)
+        self.play(FadeIn(p2_text))
+        p2_group = Group(p2, p2_text)
+
+        p3 = Rectangle(color=GREEN, fill_opacity=0.5, width = 6, height = 0.5)
+        self.play(p3.animate.scale(0.5).next_to(p2,DOWN, buff = p1.height * 4))
+        p3_text = Text("进程z: 3day", font_size = 20).next_to(p3, DOWN)
+        self.play(FadeIn(p3_text))
+        p3_group = Group(p3, p3_text)
+
+        process_group = Group(p1_group, p2_group, p3_group)
+        #pg2 = process_group.copy()
+
+        self.play(process_group.animate.arrange(LEFT))#.next_to(cpu, DOWN, buff=1))
+
+        timeline = Arrow(start=5*LEFT, end=5* RIGHT, color = BLUE,buff = 1).next_to(process_group, DOWN, buff=0.1)
+        overall_time = Text("总执行时间: 6天", font_size = 20).next_to(timeline, DOWN, buff = 0.1)
+        timeline_group = Group(timeline, overall_time)
+        self.play(Create(timeline), FadeIn(overall_time))
+        self.play(ApplyWave(process_group))
+
+        # 而不同的调度有着不同的效率
+        self.play(process_group.animate.arrange(RIGHT))
+        self.wait(1)
+        self.play(process_group.animate.arrange(LEFT))
+
+        self.wait(1)
+
+        cpu = RoundedRectangle(color=BLUE, fill_opacity=0.5, corner_radius=1.5, height=4.0, width=4.0)
+        self.play(cpu.animate.scale(0.2).move_to(LEFT*2.3 + UP*1.4))
+        cpu_text = Text("CPU", font_size = 20).next_to(cpu, DOWN, buff=0.1)
+        self.play(FadeIn(cpu_text))
+        cpu_group = Group(cpu, cpu_text)
+
+        # 而我们如何衡量一个不同调度方法或者算法的优劣?
+        # 这就要求我们需要对我们的调度算法进行量化. 这也就引入了两个
+        # 概念: turnaround time -- 周转时间. response time -- 响应时间
+        # turnaround time 是: 进程结束的时间, 减去进程开始执行的时间.(brace)
+        # response time 是: 进程启动的时间, 减去进程开始执行的时间.(brace)
+
+        tt = Text("周转时间", font_size = 25).next_to(process_group, UP, buff = 1).shift(LEFT)
+        tt_formula = Tex("$ = T_completion - T_arrival $", font_size = 20).next_to(tt, RIGHT, buff = 0.1)
+        tt_group = Group(tt, tt_formula)
+        rt = Text("响应时间", font_size = 25).next_to(tt, DOWN, buff=0.1)
+        rt_formula = Tex("$ = T_firstrun - T_arrival $", font_size =  20).next_to(rt, RIGHT, buff = 0.1)
+
+        rt_group = Group(rt, rt_formula)
+        #with self.voiceover(text="") as tracker:
+        self.play(Create(tt))
+        self.play(FadeIn(tt_formula))
+        # 下图 process x 的周转时间是:
+        self.play(Indicate(process_group[0]))
+        # 下图 process y 的周转时间是:
+        self.play(Indicate(process_group[0:2]))
+        # process z 的周转时间是:
+        self.play(Indicate(process_group))
+
+        self.play(Create(rt))
+        self.play(FadeIn(rt_formula))
+        # process x 的响应时间是 0
+        # 0
+        # process y 的响应时间是
+        self.play(Indicate(process_group[0]))
+        # process z 的响应时间是
+        self.play(Indicate(process_group[0:2]))
+
+        formula_group = Group(tt_group, rt_group)
+
+        self.play(FadeOut(formula_group), FadeOut(cpu_group))
+
+        ptimeline_group = Group(process_group, timeline_group)
+        self.play(ptimeline_group.animate.move_to(UP*2))
+        # 有了量化的标准, 接下来我们看看调度的一些算法, 看看他们的表现如何;
+        # 基本的一些算法包括: fifo , sjf, rr, MLFQ , Proportional Share
+        fifo = Text("FIFO", font_size=25, color = RED)
+        sjf = Text("SJF", font_size=25, color = WHITE).next_to(fifo, DOWN, buff=0.1)
+        rr = Text("Round Robin", font_size=25, color = ORANGE).next_to(sjf, DOWN, buff=0.1)
+        mlfq = Text("MLFQ", font_size=25, color = PURPLE).next_to(rr, DOWN, buff=0.1)
+        ps= Text("Proportional Share", font_size = 25, color = YELLOW).next_to(mlfq, DOWN, buff=0.1)
+
+        self.play(FadeIn(fifo))
+        self.wait(0.5)
+        self.play(FadeIn(sjf))
+        self.wait(0.5)
+        self.play(FadeIn(rr))
+        self.wait(0.5)
+        self.play(FadeIn(mlfq))
+        self.wait(0.5)
+        self.play(FadeIn(ps))
+
+        algorithms = Group(fifo, sjf, rr, mlfq, ps)
+        self.play(algorithms.animate.move_to(LEFT * 4))
+
+        # 首先谈一下 First In First Out, FIFO 算法, 是按照进程来的顺序, 依次执行(3, 1, 2)
+        self.play(Indicate(fifo))
+
+        # 其次谈一下 Short Job First, SJF, 是进程进来以后, 找出最短执行时间的, 进行执行.(1,2,3)
+        self.play(Indicate(sjf))
+
+        # 谈一下 Round Robin, RR, 是将进程等分, 它将有效的提高其响应时间.
+        self.play(Indicate(rr))
+
+        # 谈一下 Multi Level Feedback Queue
+        self.play(Indicate(mlfq))
+
+        # 谈一下 Proportional Share
+        self.play(Indicate(ps))
