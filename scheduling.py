@@ -2,8 +2,10 @@ from manim import *
 from manim_voiceover import VoiceoverScene
 from manim_voiceover.services.recorder import RecorderService
 
-class Scheduling(Scene):
+class Scheduling(VoiceoverScene):
     def construct(self):
+
+        self.set_speech_service(RecorderService())
         # 首先说进程被执行?
         # 这是多个进程, 他们都将被调度程序调度到 CPU 上执行.
         p1 = Rectangle(color=GREEN, fill_opacity=0.5, width = 2, height = 0.5)
@@ -15,14 +17,14 @@ class Scheduling(Scene):
 
         p2 = Rectangle(color=GREEN, fill_opacity=0.5, width = 4, height = 0.5)
         p2_text = Tex("$process_y: 2day$", font_size = 20).next_to(p2, DOWN)
-        with self.voiceover(text="进程2需要执行1天") as tracker:
+        with self.voiceover(text="进程2需要执行2天") as tracker:
             self.play(p2.animate.scale(0.5).next_to(p1,DOWN, buff = p1.height * 4))
             self.play(FadeIn(p2_text))
         p2_group = Group(p2, p2_text)
 
         p3 = Rectangle(color=GREEN, fill_opacity=0.5, width = 6, height = 0.5)
         p3_text = Tex("$process_z: 3day$", font_size = 20).next_to(p3, DOWN)
-        with self.voiceover(text="进程2需要执行1天") as tracker:
+        with self.voiceover(text="进程3需要执行3天") as tracker:
             self.play(p3.animate.scale(0.5).next_to(p2,DOWN, buff = p1.height * 4))
             self.play(FadeIn(p3_text))
         p3_group = Group(p3, p3_text)
@@ -231,9 +233,9 @@ class Scheduling(Scene):
             self.play(sjf_ta_avg.animate.next_to(sjf_ta3, RIGHT, buff= 1))
         fifo_ta_avg_result = Tex("$4.66$", font_size = 40, color=BLUE).next_to(sjf_ta_avg, RIGHT, buff=0.5)
 
-        ####
+        ####################
         # response time
-        ####
+        ####################
         sjf_rt1 = Tex("$0$", font_size = 40, color = WHITE).next_to(p1, DOWN, buff = 0)
         sjf_rt2 = Tex("$1$", font_size = 40, color = WHITE).next_to(process_group[0:2], DOWN, buff = 0)
         sjf_rt3 = Tex("$3$", font_size = 40, color = WHITE).next_to(process_group, DOWN, buff = 0)
