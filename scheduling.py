@@ -9,25 +9,25 @@ class Scheduling(VoiceoverScene):
         # 首先说进程被执行?
         # 这是多个进程, 他们都将被调度程序调度到 CPU 上执行.
         p1 = Rectangle(color=GREEN, fill_opacity=0.5, width = 2, height = 0.5)
-        p1_text = Tex("$process_x: 1day$", font_size = 20).next_to(p1, DOWN)
-        with self.voiceover(text="操作系统运行了多个进程, 这是进程1, 它需要执行1天") as tracker:
-            self.play(p1.animate.scale(0.5).move_to(LEFT * 5.5 + UP * 1.5))
-            self.play(FadeIn(p1_text))
+        p1_text = Tex("$process_x: 1day$", font_size = 40).next_to(p1, DOWN)
         p1_group = Group(p1, p1_text)
+        with self.voiceover(text="操作系统运行了多个进程, 这是进程1, 它需要执行1天") as tracker:
+            self.add(p1, p1_text)
+        self.play(p1_group.animate.scale(0.5).move_to(LEFT * 5.5 + UP * 1.5))
 
         p2 = Rectangle(color=GREEN, fill_opacity=0.5, width = 4, height = 0.5)
-        p2_text = Tex("$process_y: 2day$", font_size = 20).next_to(p2, DOWN)
-        with self.voiceover(text="进程2需要执行2天") as tracker:
-            self.play(p2.animate.scale(0.5).next_to(p1,DOWN, buff = p1.height * 4))
-            self.play(FadeIn(p2_text))
+        p2_text = Tex("$process_y: 2day$", font_size = 40).next_to(p2, DOWN)
         p2_group = Group(p2, p2_text)
+        with self.voiceover(text="进程2需要2天") as tracker:
+            self.add(p2, p2_text)
+        self.play(p2_group.animate.scale(0.5).next_to(p1,DOWN, buff = p1.height * 4))
 
         p3 = Rectangle(color=GREEN, fill_opacity=0.5, width = 6, height = 0.5)
-        p3_text = Tex("$process_z: 3day$", font_size = 20).next_to(p3, DOWN)
-        with self.voiceover(text="进程3需要执行3天") as tracker:
-            self.play(p3.animate.scale(0.5).next_to(p2,DOWN, buff = p1.height * 4))
-            self.play(FadeIn(p3_text))
+        p3_text = Tex("$process_z: 3day$", font_size = 40).next_to(p3, DOWN)
         p3_group = Group(p3, p3_text)
+        with self.voiceover(text="进程3需要3天") as tracker:
+            self.add(p3, p3_text)
+        self.play(p3_group.animate.scale(0.5).next_to(p2,DOWN, buff = p1.height * 4))  # 
 
         process_group = Group(p1_group, p2_group, p3_group)
 
@@ -37,21 +37,24 @@ class Scheduling(VoiceoverScene):
         overall_time = Text("总执行时间: 6天", font_size = 20).next_to(timeline, DOWN, buff = 0.1)
         timeline_group = Group(timeline, overall_time)
 
-        with self.voiceover(text="这些进程一共要执行6天") as tracker:
+        with self.voiceover(text="它们一共要执行6天") as tracker:
             self.play(Create(timeline), FadeIn(overall_time))
 
         # 他们可以有着不同的执行顺序
-        self.play(process_group.animate.arrange(LEFT))
-        self.wait(1)
-        self.play(process_group.animate.arrange(RIGHT))
+        with self.voiceover(text="进程可以有者不同的执行顺序.不同的执行顺序也有不同的效率") as tracker:
+            self.play(process_group.animate.arrange(LEFT))
+            self.wait(1)
+            self.play(process_group.animate.arrange(RIGHT))
 
         cpu = RoundedRectangle(color=BLUE, fill_opacity=0.5, corner_radius=1.5, height=4.0, width=4.0)
+        self.play(cpu.animate.scale(0.2).move_to(LEFT*2.3 + UP*1.4))
         cpu_text = Text("CPU", font_size = 20).next_to(cpu, DOWN, buff=0.1)
 
-        with self.voiceover(text="而从CPU的角度来说,我们需要充分的利用其运算能力,那么,如何衡量或者说如何量化对CPU的利用情况,我们引入了两个指标") as tracker:
-            self.play(cpu.animate.scale(0.2).move_to(LEFT*2.3 + UP*1.4))
-            self.play(FadeIn(cpu_text))
+        self.play(FadeIn(cpu_text))
         cpu_group = Group(cpu, cpu_text)
+
+        with self.voiceover(text="从CPU的角度来说,我们需要充分的利用其运算能力,那么,如何衡量或者说如何量化对CPU的利用情况呢?这里我们引入了两个指标") as tracker:
+            pass
 
         # 而我们如何衡量一个不同调度方法或者算法的优劣?
         # 这就要求我们需要对我们的调度算法进行量化. 这也就引入了两个
@@ -68,33 +71,33 @@ class Scheduling(VoiceoverScene):
         rt_group = Group(rt, rt_formula)
         with self.voiceover(text="第一个指标是周转时间") as tracker:
             self.play(Create(tt))
-        with self.voiceover(text="它可以通过用进程执行结束的时间减去抵达CPU的时间得出") as tracker:
-            self.play(FadeIn(tt_formula))
+        with self.voiceover(text="它等于进程执行结束的时间减去抵达CPU的时间") as tracker:
+            self.play(FadeIn(tt_formula, run_time=tracker.get_remaining_duration()))
 
         # 下图 process x 的周转时间是:
-        with self.voiceover(text="在我们的图示中,现在展示的是进程z的周转时间.它是进程z的长度,也就是3") as tracker:
-            self.play(Indicate(process_group[2]))
+        with self.voiceover(text="在我们的图示中,现在展示的是进程z的周转时间.它等于进程z的执行时间,也就是3") as tracker:
+            self.play(Indicate(process_group[2], run_time=tracker.get_remaining_duration()))
         # 下图 process y 的周转时间是:
-        with self.voiceover(text="这是进程y的周转时间,它等于进程z的长度加上y的长度等于5") as tracker:
-            self.play(Indicate(process_group[1:3]))
+        with self.voiceover(text="y周转时间等于z加上y,等于5") as tracker:
+            self.play(Indicate(process_group[1:3]), run_time=tracker.get_remaining_duration())
         # process z 的周转时间是:
-        with self.voiceover(text="最后是z的周转时间,等于3+2+1=6") as tracker:
-            self.play(Indicate(process_group))
+        with self.voiceover(text="最后,是z的周转时间,它是三者总和也就是6") as tracker:
+            self.play(Indicate(process_group, run_time=tracker.get_remaining_duration()))
 
 
-        with self.voiceover(text="第二个指标叫做响应时间") as tracker:
+        with self.voiceover(text="紧接着我们看第二个指标,叫做响应时间") as tracker:
             self.play(Create(rt))
-        with self.voiceover(text="它可以通过将进程被执行的时间减去抵达CPU的时间的出") as tracker:
+        with self.voiceover(text="它等于进程被执行的时间减去抵达CPU的时间") as tracker:
             self.play(FadeIn(rt_formula))
         # process x 的响应时间是 0
-        with self.voiceover(text="在这里,我们进程z的响应时间是0,因为它是第一个被执行的程序,等待时间为0") as tracker:
-            pass
+        with self.voiceover(text="进程z的响应时间是0,因为它是第一个被执行的程序,不需要等待") as tracker:
+            self.play(Indicate(process_group[2], run_time=tracker.get_remaining_duration()))
         # process y 的响应时间是
         with self.voiceover(text="这是进程y的响应时间3") as tracker:
-            self.play(Indicate(process_group[2]))
+            self.play(Indicate(process_group[1:3], run_time=tracker.get_remaining_duration()))
         # process z 的响应时间是
         with self.voiceover(text="进程x的响应时间是3+2=5") as tracker:
-            self.play(Indicate(process_group[1:3]))
+            self.play(Indicate(process_group, run_time=tracker.get_remaining_duration()))
 
         formula_group = Group(tt_group, rt_group)
 
@@ -123,7 +126,7 @@ class Scheduling(VoiceoverScene):
 
         # 首先谈一下 First In First Out, FIFO 算法, 它的调度是按照进程来的顺序, 依次执行(3, 1, 2)
         with self.voiceover(text="我们先来看看fifo算法的表现") as tracker:
-            self.play(Indicate(fifo))
+            self.play(Indicate(fifo, run_time=tracker.get_remaining_duration(),scale_factor=2))
         # (添加一个 point, 添加一条线, 再转换成数字. 然后数字相加)
         # 在我们的上图示例当中, fifo 的调度顺序就是 x, y ,z
         # 而它的平均周转时间是 ( 3 + 5 + 6 ) / 14 = 4.66
@@ -173,7 +176,7 @@ class Scheduling(VoiceoverScene):
         rt3 = Tex("$5$", font_size = 40, color = WHITE).next_to(p1, DOWN, buff = 0)
 
 
-        with self.voiceover(text="0加上") as tracker:
+        with self.voiceover(text="0,加上") as tracker:
             self.play(Indicate(process_group[2]))
             self.play(rt1.animate.move_to(DOWN*2+LEFT*3))
             plus3 = Tex("$+$").next_to(rt1)
@@ -200,7 +203,7 @@ class Scheduling(VoiceoverScene):
 
         # 接下来我们看一下 Short Job First, SJF, 是进程进来以后, 找出最短执行时间的, 进行执行.(1,2,3)
         with self.voiceover(text="那么sjf表现如何呢?") as tracker:
-            self.play(Indicate(sjf))
+            self.play(Indicate(sjf,run_time=tracker.get_remaining_duration()))
         # 它的平均周转时间可以达到 ( 1 + 3 + 6 ) / 3 = 3.33
         # 它的平均响应时间可以达到 (0+1+3) / 3 = 1.33
         # 这个时候 FIFO 的执行时间可以得到很高的提升.
@@ -274,14 +277,25 @@ class Scheduling(VoiceoverScene):
         self.play(FadeOut(sjf_group))
 
 
-        with self.voiceover(text=" 同学就发现了, FIFO 是不是也可以达到这样的效果? 答案是肯定的. 如果进程的进入顺序是按照从小到大抵达我们的系统. 那么 FIFO 的效果是和 SJF 一致的. 所以结论是, FIFO 算法会根据进程的进入顺序不同, 再效率的表现上面不同.") as tracker:
-            pass
+        r1 = Rectangle(color=RED, fill_opacity=0.5, width = 2, height = 0.5).scale(0.5).next_to(p1, RIGHT)
+        r2 = Rectangle(color=RED, fill_opacity=0.5, width = 2, height = 0.5).scale(0.5).next_to(r1, RIGHT)
+        r3 = Rectangle(color=RED, fill_opacity=0.5, width = 2, height = 0.5).scale(0.5).next_to(r2,RIGHT)
+        r4 = Rectangle(color=RED, fill_opacity=0.5, width = 2, height = 0.5).scale(0.5).next_to(r3,RIGHT)
+        r5 = Rectangle(color=RED, fill_opacity=0.5, width = 2, height = 0.5).scale(0.5).next_to(r4,RIGHT)
+        rgroup = Group(r1, r2, r3, r4, r5)
+        with self.voiceover(text="那么 SJF 存在什么问题吗? 它的问题是, 当有很多个短任务来到系统当中时") as tracker:
+            self.wait(5)
+            self.play(FadeIn(r1))
+            self.play(FadeIn(r2))
+            self.play(FadeIn(r3))
+            self.play(FadeIn(r4))
+            self.play(FadeIn(r5))
 
-        with self.voiceover(text="那么 SJF 存在什么问题吗? 它的问题是, 当有很多个短任务来到系统当中时, 长任务也就是 3 天的这个任务, 将一直不会被执行. 我们会说它处于饥饿状态. 这个问题怎么解决呢?请将这个问题放在脑海中, 稍等我们将回来再看这个问题.") as tracker:
-            pass
+        with self.voiceover ("长任务也就是 3 天的这个任务, 将一直不会被执行. 我们会说它处于饥饿状态. 这个问题怎么解决呢?请将这个问题放在脑海中, 稍等我们将回来再看这个问题.") as tracker:
+                self.play(Indicate(p3, run_time=tracker.get_remaining_duration()), FadeOut(rgroup))
 
         with self.voiceover(text="接下来,我们将来看:Round Robin算法,你会看到它在响应时间上能够做到很大的提升") as tracker:
-            self.play(Indicate(rr))
+            self.play(Indicate(rr,scale_factor=2, run_time=tracker.get_remaining_duration()))
 
         # 它的解决方案是, 将进程等分一个一个的小块, 它将有效的提高其响应时间.
         # 在我们的示例当中, 我们把进程按照 一天的时间进行等分. 这样我们就能够得到 RR 的情况下,
@@ -345,6 +359,7 @@ class Scheduling(VoiceoverScene):
             self.play(rr_rt3.animate.next_to(rr_rt2, RIGHT, buff = 0.8))
 
         rr_rt_avg = Tex("$T_{average} = 3 / 3 = 1$", font_size = 35)
+        rr_group = Group(rr_rt1, rr_rt2, rr_rt3, rr_rt_avg)
 
         with self.voiceover(text="最后它的平均响应时间是3除以3,就等于1.这样,有了Round Robin算法后,无论是FIFO,还是SJF,我们都可以保证响应时间上可以做到一致,先别着急离开视频,还记得我们前面提到的问题了吗?") as tracker:
             self.play(rr_rt_avg.animate.next_to(rr_rt3, RIGHT, buff= 1))
@@ -354,5 +369,16 @@ class Scheduling(VoiceoverScene):
 #        self.play(FadeOut(rr_group))
 
 
+
         with self.voiceover(text="问题是SJF,如何在短进程很多的情况下长进程仍然被执行呢?答案就是设置优先级.那么,这也就是MLFQ,优先级队列算法尝试做的事情.请期待一下下期的视频.谢谢.再见.") as tracker:
-            pass
+            self.play(
+                FadeOut(process_group),
+                FadeOut(timeline_group),
+                FadeOut(tt_group),
+                FadeOut(rt_group),
+                FadeOut(rr_group),
+                FadeOut(rr_ta1),
+                FadeOut(rr_process_group),
+                FadeOut(algorithms)
+            )
+            self.play(FadeIn(Text("MLFQ: Multi Level Feedback Queue"), run_time=3))
