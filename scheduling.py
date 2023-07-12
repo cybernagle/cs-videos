@@ -359,7 +359,7 @@ class Scheduling(VoiceoverScene):
             self.play(rr_rt3.animate.next_to(rr_rt2, RIGHT, buff = 0.8))
 
         rr_rt_avg = Tex("$T_{average} = 3 / 3 = 1$", font_size = 35)
-        rr_group = Group(rr_rt1, rr_rt2, rr_rt3, rr_rt_avg)
+        rr_group = Group(rr_rt1, rr_rt2, rr_rt3, rr_rt_avg,plus3, plus4)
 
         with self.voiceover(text="最后它的平均响应时间是3除以3,就等于1.这样,有了Round Robin算法后,无论是FIFO,还是SJF,我们都可以保证响应时间上可以做到一致,先别着急离开视频,还记得我们前面提到的问题了吗?") as tracker:
             self.play(rr_rt_avg.animate.next_to(rr_rt3, RIGHT, buff= 1))
