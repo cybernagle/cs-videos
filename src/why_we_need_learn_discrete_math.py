@@ -1,4 +1,4 @@
-#from manim import *
+from manim import *
 #from manim_voiceover import VoiceoverScene
 #from manim_voiceover.services.recorder import RecorderService
 
@@ -83,6 +83,29 @@ class WhyDiscreteMath(Scene):
         """
         how discrete resolve problem
         """
+        result_truth_table =Table(
+            [["true", "true", "true", "do_a"],
+             ["false", "true", "true", "do_c"],
+             ["true", "false", "true", "do_a"],
+             ["true", "true", "false", "do_b"],
+             ["false", "false", "true", "do_d"],
+             ["false", "true", "false", "do_c"],
+             ["true", "false", "false", "do_a"],
+             ["false", "false", "false", "do_d"],],
+            col_labels=[Text("X"), Text("Y"), Text("Z"), Text("Result")],
+            include_outer_lines=True,
+            color=GREEN
+        ).scale(0.4).move_to(LEFT*0.3).set_row_colors(YELLOW)
+
+
+        self.play(Create(result_truth_table),FadeOut(truth_table))
+        self.play(result_truth_table.animate.set_row_colors(
+            YELLOW,
+            RED, PURPLE, RED,
+            BLUE, GREEN, PURPLE,
+            RED, GREEN
+        ))
+
 
         ordered_truth_table =Table(
             [["true", "true", "true", "do_a"],
@@ -96,20 +119,39 @@ class WhyDiscreteMath(Scene):
             col_labels=[Text("X"), Text("Y"), Text("Z"), Text("Result")],
             include_outer_lines=True,
             color=GREEN
-        ).scale(0.4)
+        ).scale(0.4).move_to(LEFT*0.3).set_row_colors(YELLOW, RED, RED,
+                                                      RED, BLUE, PURPLE,
+                                                      PURPLE, GREEN, GREEN)
 
+        self.play(Transform(result_truth_table, ordered_truth_table))#, FadeOut(result_truth_table))
+        self.wait(1)
 
         result_code = """
         def why_discrete_math():
-            if(x==true && y==true):
+            if(x==false && y==false):
                 do_d()
             else if(x==true && y==true && z==false):
                 do_b()
-            else if(x == false && y == false):
+            else if(x == false && y == true):
                 do_c()
             else:
                 do_a()
         """
-        result_py_code = Code(code=long_code, tab_width=4, background="window",
+        result_py_code = Code(code=result_code, tab_width=4, background="window",
                      language="Python", font="Monospace")
+        tb_group = Group(result_truth_table ,ordered_truth_table)
 
+        self.play(tb_group.animate.move_to(LEFT*3), FadeOut(ordered_truth_table))
+        self.play(FadeIn(result_py_code.scale(0.5).move_to(RIGHT*2)))
+
+        self.play(Indicate(result_py_code.code[3:5]))
+        self.play(Indicate(result_truth_table.get_rows()[4:5]))
+
+        self.play(Indicate(result_py_code.code[5:7]))
+        self.play(Indicate(result_truth_table.get_rows()[5:7]))
+
+        self.play(Indicate(result_py_code.code[1:3]))
+        self.play(Indicate(result_truth_table.get_rows()[7:9]))
+
+        self.play(Indicate(result_py_code.code[7:9]))
+        self.play(Indicate(result_truth_table.get_rows()[1:4]))
