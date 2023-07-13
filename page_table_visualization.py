@@ -8,7 +8,7 @@ class MemoryVisualization(VoiceoverScene):
         # or in this example, record your own voice:
         self.set_speech_service(RecorderService())
 
-        clang = Code("main.c", color=WHITE).shift(2*UP)
+        clang = Code("page_table_visualization.c", color=WHITE).shift(2*UP)
         asm  = Text("mov 0x1,-0x4(%rpb)")
 
         with self.voiceover(text="这是一小段C代码") as tracker:
