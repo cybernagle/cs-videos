@@ -1,4 +1,4 @@
-from manim import *
+#from manim import *
 #from manim_voiceover import VoiceoverScene
 #from manim_voiceover.services.recorder import RecorderService
 
@@ -79,7 +79,6 @@ class WhyDiscreteMath(Scene):
         self.play(Indicate(truth_table.get_rows()[1:]))
         self.wait()
 
-        self.play()
 
         """
         how discrete resolve problem
