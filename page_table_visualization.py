@@ -70,6 +70,7 @@ class MemoryVisualization(VoiceoverScene):
         with self.voiceover(text=" 其中前四位也就是黄色区域是虚拟页号, 后面 12 位白色的是偏移量, 代表在一个页里面的位置.") as tracker:
             self.play(Create(vpn), Create(offset))
         # 把 binary 和 rbp 和内存都group 一下移动到屏幕上方.
+
         binary_group = VGroup(binary, vpn, offset)
 
         vm_group = VGroup(mem_group, rbp_addr, binary_group)
@@ -77,10 +78,10 @@ class MemoryVisualization(VoiceoverScene):
 
         # 创建一个页表
         page_table = Table(
-            [["0110", "1001"],
-             ["0100", "0110"],
-             ["0101", "0010"],
-             ["0000", "1000"]],
+            [["3", "1001"],
+             ["4", "0110"],
+             ["5", "0010"],
+             ["6", "1000"]],
             col_labels=[Text("VPN"), Text("PFN")],
             include_outer_lines=True
         ).set_column_colors(YELLOW).scale(0.3)
@@ -88,7 +89,7 @@ class MemoryVisualization(VoiceoverScene):
 
         with self.voiceover(text=" 这是我们的页表") as tracker:
             self.play(Create(page_table), Create(Text("页表", font_size=20).next_to(page_table,DOWN, buff=0.1)))
-        with self.voiceover(text=" 根据虚拟地址里面的虚拟页号") as tracker:
+        with self.voiceover(text=" 根据虚拟地址里面的虚拟页号,0110转换成十进制也就是 4") as tracker:
             self.play(Indicate(vpn))
         with self.voiceover(text=" 我们找到在对应页表中的位置") as tracker:
             self.play(Indicate(page_table.get_cell((3,1))))
