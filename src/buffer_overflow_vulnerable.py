@@ -9,34 +9,44 @@ class VulnerableCodeExplain(Scene):
         让我们拆开来看
         """
         clang = """
-#include <stdio.h>
-#include <string.h>
-
-void vulnerableFunction() {
-
-  char buffer[5];
-  printf("请输入内容:");
-
-  gets(buffer);
-
-  printf("你输入的是: %s", buffer);
-
+unsigned long long getbuf()
+{
+  char buf[36];
+  volatile char* variable_length;
+  int i;
+  unsigned long long val = (unsigned long long)Gets(buf);
+        ...
+  return val % 40;
 }
-
-int main() {
-  vulnerableFunction();
-  return 0;
+void test()
+{
+  unsigned long long val;
+  char* variable_length;
+  val = getbuf();
 }
         """
-        ccode = Code(code=clang,
+        c_object = Code(code=clang,
                     tab_width=4, background="window",
-                     language="C", font="Monospace").scale(0.8)
-        self.play(Create(ccode))
+                     language="C", font="Monospace").scale(0.5)
 
         """
-        程序是一个获取输入的代码.
+        程序是一个获取输入的代码.这段代码有什么问题吗?
         """
-        self.play(Indicate(ccode.code[8]))
+        self.play(Create(c_object))
+        self.play(c_object.animate.shift(LEFT*3))
+
+        asm = """
+        sub    $0x30,%rsp
+        lea    -0x30(%rbp),%rdi
+        callq  400cb0 <Gets>
+        """
+
+        asm_object = Code(code=asm, language="C").scale(0.8)
+        """
+        我们关注一下其核心代码
+        """
+        self.play(Indicate(c_object.code[5], run_time=2))
+        self.play(asm_object.animate.shift(RIGHT*4))
 
         """
         被编译后, 分为了几个模块被放入到内存当中.
