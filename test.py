@@ -459,6 +459,19 @@ class DiffBetweenForkAndExec(Scene):
     def construct(self):
         pass
 
-class ProportionalShare(Scene):
+class ArrangeTable(Scene):
     def construct(self):
-        pass
+        t = Table(
+            [["true", "true", "true", "do_a"],
+             ["false", "true", "true", "do_c"],
+             ["true", "false", "true", "do_a"],
+             ["true", "true", "false", "do_b"],
+             ["false", "false", "true", "do_d"],
+             ["false", "true", "false", "do_c"],
+             ["true", "false", "false", "do_a"],
+             ["false", "false", "false", "do_d"],],
+            col_labels=[Text("X"), Text("Y"), Text("Z"), Text("Result")],
+            include_outer_lines=True,
+            color=GREEN
+        ).scale(0.4).move_to(LEFT*0.3).set_row_colors(YELLOW)
+        self.play(t.animate.arrange())

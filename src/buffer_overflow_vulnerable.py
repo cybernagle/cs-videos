@@ -1,6 +1,6 @@
 from manim import *
-#from manim_voiceover import VoiceoverScene
-#from manim_voiceover.services.recorder import RecorderService
+from manim_voiceover import VoiceoverScene
+from manim_voiceover.services.recorder import RecorderService
 
 class VulnerableCodeExplain(Scene):
     def construct(self):
@@ -35,6 +35,7 @@ void test()
         self.play(Create(c_object))
         self.play(c_object.animate.shift(LEFT*3))
 
+
         asm = """
         sub    $0x30,%rsp
         lea    -0x30(%rbp),%rdi
@@ -43,11 +44,17 @@ void test()
 
         asm_object = Code(code=asm, language="C").scale(0.8)
         """
-        我们关注一下其核心代码
+        我们看一下这行代码
         """
         self.play(Indicate(c_object.code[5], run_time=2))
+
+        # 把它转换成汇编码
         self.play(asm_object.animate.shift(RIGHT*4))
 
+
+        # 看不懂没关系,看看它在内存里面干了啥.
+        self.play(Indicate(asm_object.code[1]))
+        memory = Rectangle(color=BLUE, fill_opacity=0.1, width=2, height=4, grid_xstep=2.0, grid_ystep=0.5).shift(DOWN*0.25)
         """
         被编译后, 分为了几个模块被放入到内存当中.
         其中几个模块比较重要

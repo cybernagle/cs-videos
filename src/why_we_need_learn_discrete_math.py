@@ -2,7 +2,7 @@ from manim import *
 from manim_voiceover import VoiceoverScene
 from manim_voiceover.services.recorder import RecorderService
 
-class WhyDiscreteMath(Scene):
+class WhyDiscreteMath(VoiceoverScene):
     def construct(self):
 
         self.set_speech_service(RecorderService())
@@ -39,7 +39,7 @@ class WhyDiscreteMath(Scene):
         """
         # 脚本:
         # 这是一段 python 的代码, 需要判断一个条件,用一个语句就可以了.
-        with self.voiceover(text="这段代码需要判断一个条件") as tracker:
+        with self.voiceover(text="这段代码有判断一个条件.") as tracker:
             self.add(py_code)
             self.play(ApplyWave(py_code.code[1][7:16], run_time=2))
 
@@ -54,7 +54,7 @@ class WhyDiscreteMath(Scene):
         second_if = long_py_code.code[1][17:24].copy()
         third_if = long_py_code.code[1][28:35].copy()
 
-        with self.voiceover(text="我们可以做什么来简化分支吗?") as tracker:
+        with self.voiceover(text="我们可以做什么来简化分支吗 ?") as tracker:
             self.play(first_if.animate.next_to(long_py_code, DOWN, 0.1).shift(LEFT*1.8))
             self.play(second_if.animate.next_to(first_if, RIGHT, buff = 0.5))
             self.play(third_if.animate.next_to(second_if, RIGHT, buff = 0.5))
@@ -136,6 +136,7 @@ class WhyDiscreteMath(Scene):
                 BLUE, GREEN, PURPLE,
                 RED, GREEN
             ))
+            self.wait(3.5)
             self.play(Transform(result_truth_table, ordered_truth_table))
 
         result_code = """
@@ -156,7 +157,7 @@ class WhyDiscreteMath(Scene):
         # 根据真值表, 我们就可以写出这种程序.
         with self.voiceover(text="根据真值表, 我们就可以写出这种程序..") as tracker:
             self.play(tb_group.animate.move_to(LEFT*3), FadeOut(ordered_truth_table))
-            self.play(FadeIn(result_py_code.scale(0.5).move_to(RIGHT*2)))
+        self.play(FadeIn(result_py_code.scale(0.5).move_to(RIGHT*2)))
 
         # 可以看到, 每个分支条件与真值表中的同颜色区域进行一一对应.
         # 这样, 我们就可以很自信的说, 我们简化了分支, 并且从数学上证明了它不会遗漏任何情况.
