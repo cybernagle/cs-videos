@@ -65,8 +65,14 @@ gdtdesc:
 
         xor = Text("xor", font_size = 20).next_to(ax_reg, DOWN, buff=0.25)
         self.play(Create(xor))
-        for i in ax_reg:
-            i.update_mob_value(mob_value_args={"0":0})
+
+        self.play(ax_reg.animate.scale(2).shift(LEFT*2))
+        for i in range(len(ax_reg)-1):
+            self.play(Write(ax_reg.update_elem_value(
+                i, 0, mob_value_args={'color': RED})))#, play_anim=False)))
+
+        #self.play(Write(ax_reg))
+        self.play(ax_reg.animate.shift(RIGHT*2).scale(0.5))
 
         self.wait()
 
