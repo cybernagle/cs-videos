@@ -96,9 +96,9 @@ finish_probe:
             ss_reg.animate.shift(DOWN*1.5),
         )
 
-        ds_txt = Text("ds", font_size = 15).next_to(ds_reg,LEFT)
-        es_txt = Text("es", font_size = 15).next_to(es_reg,LEFT)
-        ss_txt = Text("ss", font_size = 15).next_to(ss_reg,LEFT)
+        ds_txt = Text("ds", font_size = 20).next_to(ds_reg,LEFT)
+        es_txt = Text("es", font_size = 20).next_to(es_reg,LEFT)
+        ss_txt = Text("ss", font_size = 20).next_to(ss_reg,LEFT)
 
         self.play(
             Create(ds_txt),
@@ -107,22 +107,3 @@ finish_probe:
         )
 
         self.wait()
-
-
-def generate_mem():
-        mem = VGroup()
-        addresses = VGroup()
-        start_addr = 0x0fc0
-        for i in range(10):
-            rect = Rectangle(color=BLUE, fill_opacity=0.5, width=2, height=0.5,
-                      grid_xstep=2.0, grid_ystep=0.5)
-            addr = Text(hex(start_addr), font_size = 15)
-            rect.next_to(mem, DOWN, buff=0)
-            addr.next_to(rect, LEFT, buff=0.2)
-            mem.add(rect)
-            addresses.add(addr)
-            start_addr += 8
-        mem_group = VGroup(mem, addresses)
-        mem_group.shift(RIGHT*3+UP*2.5)
-
-
