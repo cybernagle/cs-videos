@@ -48,38 +48,50 @@ class WhatHackIsThisCode(Scene):
             byte_group.animate.arrange(DOWN,aligned_edge=LEFT).shift(LEFT*4+DOWN)
         )
 
-        self.play(
-            Circumscribe(word_group,time_width=2)
-        )
-        self.play(
-            Circumscribe(byte_group,time_width=2)
-        )
+        indicate_word_group = SurroundingRectangle(word_group).set_stroke(PURPLE)
+        indicate_byte_group = SurroundingRectangle(byte_group).set_stroke(PURPLE)
+        self.play(Create(indicate_word_group), Create(indicate_byte_group))
+
+        word = VGroup(word_group, indicate_word_group)
+        byte = VGroup(byte_group, indicate_byte_group)
+
+        self.play(word.animate.align_to(byte, RIGHT))
 
         t = "$type = \mathtt{0x10}$"
         base = "$base = \mathtt{0x0}$"
         lim = "$lim = \mathtt{0xffffffff}$"
 
-        lim_param = Tex(lim)
-        base_param = Tex(base).next_to(lim_param)
-        type_param = Tex(t).next_to(base_param)
+        param_lim = Tex(lim, font_size = 30).next_to(word, UP, buff=1.5).align_to(word, LEFT)
+        param_base = Tex(base, font_size=30).next_to(param_lim, DOWN)
+        param_type = Tex(t, font_size=30).next_to(param_base, DOWN)
+
+        param_group = VGroup(param_lim, param_base, param_type)
+
+        self.play(Create(param_group))
 
         #第一个值是 (lim >> 12) & 0xffff，表示将 lim 右移12位，然后取低16位；
+        lim_first = param_lim.copy()
         binary_table = VGroup()
 
         for i in range(32):
-            binary_digit = Tex("$1$", font_size=30)
-            binary_digit.move_to(2 * LEFT + i * 0.2 * RIGHT)
+            binary_digit = Tex("$1$", font_size=30).next_to(word, RIGHT)
+            binary_digit.move_to(i * 0.2 * RIGHT)
             binary_table.add(binary_digit)
 
-        surrand_pre = always_redraw(
-            lambda: SurroundingRectangle(binary_table)
-        ) 
+        surrand_pre = SurroundingRectangle(binary_table)
 
         binary = VGroup(binary_table, surrand_pre)
-        self.play(Create(binary))
 
-        self.wait()
+        binary_tmp = binary.copy()
+        self.play(Transform(lim_first, binary_tmp))
+        self.play(
+            FadeOut(binary_tmp), 
+            FadeOut(lim_first),
+            FadeIn(binary)
+        )
 
+        surrand_pre_2 = SurroundingRectangle(binary_table[0:20])
+        self.play(Transform(surrand_pre, surrand_pre_2))
         for i in reversed(range(20,32)):
             binary_table -= binary_table[i]
 
@@ -94,25 +106,30 @@ class WhatHackIsThisCode(Scene):
         self.play(Transform(binary, lim_last))
 
         self.wait()
-        self.play(binary.animate.to_edge(UP))      
-
+        self.play(binary.animate.shift(UP*3+LEFT))
 
         # 第二个值是 (base & 0xffff)，表示将 base 的低16位保留。
-        base_value = Tex("$0$", font_size=30)
-        base_group = VGroup(base_value)
-        base_surrand = SurroundingRectangle(base_group)
-        base = VGroup(base_group, base_surrand)
-        self.add(base)
-        self.wait()
+        #base_value = Tex("$0$", font_size=30).next_to(word, RIGHT)
+        param_base_2 = param_base.copy()
+        base_group = VGroup()
+
         for i in range(16):
-            base_temp = Tex("$0$", font_size=30)
+            base_temp = Tex("$0$", font_size=30).next_to(word, RIGHT)
             base_temp.move_to(i*0.2*RIGHT)
             base_group.add(base_temp)
 
-        base_surrand_2 = SurroundingRectangle(base_group)
-        self.play(Transform(base_surrand, base_surrand_2))
+        base_surrand = SurroundingRectangle(base_group)
+        base = VGroup(base_group, base_surrand)
 
-        self.wait()
+        base_tmp = base.copy()
+        self.play(Transform(param_base_2, base_tmp))
+
+        self.play(
+            FadeOut(param_base_2),
+            FadeOut(base_tmp),
+            FadeIn(base)
+        )
+
         self.play(base.animate.next_to(binary, RIGHT, buff=0.2))
 
         """
@@ -122,14 +139,21 @@ class WhatHackIsThisCode(Scene):
             具体的含义和用途还需要根据上下文进一步分析。
         """
         # 第一个值是 ((base >> 16) & 0xff)，表示将 base 右移16位，然后取低8位；
+
         base_third_value = Tex("$0$", font_size=30)
         base_third_group = VGroup(base_third_value)
         base_third_surrand = SurroundingRectangle(base_third_group).set_stroke(color=RED)
 
         base_third = VGroup(base_third_group, base_third_surrand)
-        self.add(base_third)
+        base_temp_thrid = param_base.copy()
+        base_third_copy = base_third.copy()
+        self.play(Transform(base_temp_thrid, base_third_copy))
 
-        self.wait()
+        self.play(
+            FadeOut(base_third_copy),
+            FadeOut(base_temp_thrid),
+            FadeIn(base_third)
+        )
 
         for i in range(16):
             base_temp_third = Tex("$0$", font_size=30)
@@ -161,8 +185,9 @@ class WhatHackIsThisCode(Scene):
         self.play(Transform(ninety_group, ninety_binary))
         ninety_group.add(ninety_binary)
 
-        type_value = Tex("$\mathtt{0x10}$", font_size=30).next_to(ninety_binary, DOWN, buff=0.1)
-        self.play(Create(type_value))
+        #type_value = Tex("$\mathtt{0x10}$", font_size=30).next_to(ninety_binary, DOWN, buff=0.1)
+        type_value = param_type.copy()
+        self.play(type_value.animate.next_to(ninety_binary, DOWN, buff=0.1).align_to(ninety_binary, RIGHT))
         self.wait()
         type_binary = Tex("$00010000$", font_size=30).move_to(type_value.get_center()).align_to(ninety_binary, RIGHT)
         type_group = VGroup(type_value, type_binary)
@@ -187,15 +212,21 @@ class WhatHackIsThisCode(Scene):
         # 第三个值是 (0xC0 | ((lim >> 28) & 0xf))，表示将 lim 右移28位，然后取低4位，并与 0xC0 进行按位或运算；
 
         fifth_binary_table = VGroup()
-
         for i in range(32):
-            fifth_tmp = Tex("$1$", font_size=30)
-            fifth_tmp.move_to(2 * LEFT + i * 0.15 * RIGHT)
+            fifth_tmp = Tex("$1$", font_size=30).next_to(word,RIGHT)
+            fifth_tmp.move_to(i * 0.15 * RIGHT)
             fifth_binary_table.add(fifth_tmp)
 
         fifth_surrand = SurroundingRectangle(fifth_binary_table).set_stroke(color=RED)
         fifth_group = VGroup(fifth_binary_table, fifth_surrand)
-        self.play(Create(fifth_group))
+        param_lim_fifth = param_lim.copy()
+        fifth_group_copy = fifth_group.copy()
+        self.play(Transform(param_lim_fifth, fifth_group_copy))
+        self.play(
+            FadeOut(fifth_group_copy),
+            FadeOut(param_lim_fifth),
+            FadeIn(fifth_group)
+        )
         self.wait()
 
         fifth_surrand_1 = SurroundingRectangle(fifth_binary_table[0:8]).set_stroke(color=RED)
@@ -228,13 +259,21 @@ class WhatHackIsThisCode(Scene):
         # 第四个值是 ((base >> 24) & 0xff)，表示将 base 右移24位，然后取低8位。
         sixth_binary_table = VGroup()
         for i in range(32):
-            sixth_tmp = Tex("$0$", font_size=30)
-            sixth_tmp.move_to(2 * LEFT + i * 0.2 * RIGHT)
+            sixth_tmp = Tex("$0$", font_size=30).next_to(word,RIGHT)
+            sixth_tmp.move_to(i * 0.2 * RIGHT)
             sixth_binary_table.add(sixth_tmp)
 
         sixth_surrand = SurroundingRectangle(sixth_binary_table).set_stroke(color=RED)
         sixth_group = VGroup(sixth_binary_table, sixth_surrand)
-        self.play(Create(sixth_group))
+
+        param_base_3 = param_base.copy()
+        sixth_group_copy = sixth_group.copy()
+        self.play(Transform(param_base_3, sixth_group_copy))
+        self.play(
+            FadeOut(sixth_group_copy),
+            FadeOut(param_base_3),
+            FadeIn(sixth_group)
+        )
 
         sixth_surrand_1 = SurroundingRectangle(sixth_binary_table[0:8]).set_stroke(color=RED)
         self.play(Transform(sixth_surrand, sixth_surrand_1))
@@ -243,5 +282,49 @@ class WhatHackIsThisCode(Scene):
 
         base_sixth = VGroup(sixth_group, sixth_surrand)
         self.play(base_sixth.animate.next_to(base_fifth, RIGHT, buff=0.2).align_to(base, RIGHT))
+
+        segment_descriptor = VGroup(
+            base_sixth,
+            base_fifth,
+            base,
+            binary,
+            base_third,
+            base_forth
+        )
+        # 那么你要问了, 这些二进制都在干什么?
+
+        b = Brace(segment_descriptor, DOWN)
+        sg = b.get_text("Segment descriptor")
+        self.play(Create(b), Create(sg))
+
+        all_seg = VGroup(segment_descriptor, b, sg)
+        # 当我们在执行 cs:ip 的时候, cs 的段选择子
+
+        mem = VGroup()
+        addresses = VGroup()
+        start_addr = 0x0
+        for i in range(10):
+            rect = Rectangle(color=BLUE, fill_opacity=0.5, width=2, height=0.5,
+                      grid_xstep=2.0, grid_ystep=0.5)
+            addr = Text(hex(start_addr), font_size = 15)
+            rect.next_to(mem, DOWN, buff=0)
+            addr.next_to(rect, LEFT, buff=0.2)
+            mem.add(rect)
+            addresses.add(addr)
+            start_addr += 0x1000
+
+        #self.play(Create(mem), Create(addresses))
+        memory = VGroup(mem, addresses)
+        self.play(memory.animate.scale(0.7).move_to(ORIGIN).shift(RIGHT*3+DOWN))
+
+        self.play(
+            all_seg.animate.scale(0.1).move_to(ORIGIN).shift(RIGHT*3+DOWN),
+        )
+        self.play(
+            FadeOut(all_seg)
+        )
+        self.play(
+            Indicate(mem[5])
+        )
 
         self.wait()
