@@ -69,14 +69,14 @@ class WhyDiscreteMath(VoiceoverScene):
         """
 
         truth_table =Table(
-            [["true", "true", "true", ""],
-             ["false", "true", "true", ""],
-             ["true", "false", "true", ""],
-             ["true", "true", "false", ""],
-             ["false", "false", "true", ""],
-             ["false", "true", "false", ""],
-             ["true", "false", "false", ""],
-             ["false", "false", "false", ""],],
+            [["T", "T", "T", ""],
+             ["F", "F", "T", ""],
+             ["T", "F", "T", ""],
+             ["T", "T", "F", ""],
+             ["F", "F", "T", ""],
+             ["F", "T", "F", ""],
+             ["T", "F", "F", ""],
+             ["F", "F", "F", ""],],
             col_labels=[Text("X"), Text("Y"), Text("Z"), Text("Result")],
             include_outer_lines=True,
             color=GREEN
@@ -99,27 +99,27 @@ class WhyDiscreteMath(VoiceoverScene):
         how discrete resolve problem
         """
         result_truth_table =Table(
-            [["true", "true", "true", "do_a"],
-             ["false", "true", "true", "do_c"],
-             ["true", "false", "true", "do_a"],
-             ["true", "true", "false", "do_b"],
-             ["false", "false", "true", "do_d"],
-             ["false", "true", "false", "do_c"],
-             ["true", "false", "false", "do_a"],
-             ["false", "false", "false", "do_d"],],
+            [["T", "T", "T", "do_a"],
+             ["F", "T", "T", "do_c"],
+             ["T", "F", "T", "do_a"],
+             ["T", "T", "F", "do_b"],
+             ["F", "F", "T", "do_d"],
+             ["F", "T", "F", "do_c"],
+             ["T", "F", "F", "do_a"],
+             ["F", "F", "F", "do_d"],],
             col_labels=[Text("X"), Text("Y"), Text("Z"), Text("Result")],
             include_outer_lines=True,
             color=GREEN
         ).scale(0.4).move_to(LEFT*0.3).set_row_colors(YELLOW)
         ordered_truth_table =Table(
-            [["true", "true", "true", "do_a"],
-             ["true", "false", "true", "do_a"],
-             ["true", "false", "false", "do_a"],
-             ["true", "true", "false", "do_b"],
-             ["false", "true", "false", "do_c"],
-             ["false", "true", "true", "do_c"],
-             ["false", "false", "true", "do_d"],
-             ["false", "false", "false", "do_d"]],
+            [["T", "T", "T", "do_a"],
+             ["T", "F", "T", "do_a"],
+             ["T", "F", "F", "do_a"],
+             ["T", "T", "F", "do_b"],
+             ["F", "T", "F", "do_c"],
+             ["F", "T", "T", "do_c"],
+             ["F", "F", "T", "do_d"],
+             ["F", "F", "F", "do_d"]],
             col_labels=[Text("X"), Text("Y"), Text("Z"), Text("Result")],
             include_outer_lines=True,
             color=GREEN
@@ -138,6 +138,15 @@ class WhyDiscreteMath(VoiceoverScene):
             ))
             self.wait(3.5)
             self.play(Transform(result_truth_table, ordered_truth_table))
+
+        with self.voiceover(text="从真值表我们可以看到,如果x与y为假,不论z的真假.都是do_d") as tracker:
+            pass
+        with self.voiceover(text="而x与y为真,z为假的情况下.do_b") as tracker:
+            pass
+        with self.voiceover(text="而x为假,y为真的情况下,不论z的真假,都是do_c") as tracker:
+            pass
+        with self.voiceover(text="最后剩余的所有情况都是do_a") as tracker:
+            pass
 
         result_code = """
         def why_discrete_math():
