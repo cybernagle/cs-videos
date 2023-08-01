@@ -1,4 +1,5 @@
 from manim import *
+import math
 
 class HowToManageMemSpace(MovingCameraScene):
     memory = VGroup()
@@ -130,7 +131,7 @@ class HowToManageMemSpace(MovingCameraScene):
         self.wait()
 
         self.play(
-            self.camera.frame.animate.scale(40),
+            self.camera.frame.animate.scale(30),
         )
         self.play(
             self.camera.frame.animate.move_to(self.square_mem[20])
@@ -139,18 +140,40 @@ class HowToManageMemSpace(MovingCameraScene):
         # allocating memory
 
         all_mem = SurroundingRectangle(self.square_mem, color=RED)
-        self.play(Create(all_mem))
+        surrand_all = Brace(all_mem, direction=DOWN, buff=SMALL_BUFF)
+        text_all = surrand_all.get_text("Allocated Memory").set_color(RED)
+
         allocation_group = VGroup()
+        brace_group = VGroup()
+        text_group = VGroup()
+        allocation_group.add(all_mem)
+        brace_group.add(surrand_all)
+        text_group.add(text_all)
         length = 36
         for i in range(3):
             length /= 2
+            length = math.ceil(length)
             s = SurroundingRectangle(self.square_mem[0:length], color=RED)
+            b = Brace(s, direction=DOWN, buff=SMALL_BUFF)
+            t = b.get_text("Allocated Memory").set_color(RED)
             allocation_group.add(s)
+            brace_group.add(b)
+            text_group.add(t)
 
-        allocated = always_redraw(lambda: Brace(self.square_mem, direction=DOWN, buff=SMALL_BUFF))
-        text = allocated.get_text("Allocated Memory").set_color(RED)
+        self.play(Create(all_mem))
         self.play(
-            GrowFromCenter(allocated),
-            Write(text))
+            GrowFromCenter(brace_group[0]),
+            Write(text_group[0]))
+
+        for i in range(3):
+            self.play(
+                ReplacementTransform(allocation_group[i], allocation_group[i+1]),
+                ReplacementTransform(brace_group[i], brace_group[i+1]),
+                ReplacementTransform(text_group[i], text_group[i+1]),
+                self.camera.frame.animate.move_to(allocation_group[i+1].get_center()),
+            )
+            self.play(
+                self.camera.frame.animate.scale(0.5),
+            )
 
         self.wait()
