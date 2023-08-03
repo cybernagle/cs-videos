@@ -1,7 +1,72 @@
-from manim import *
 import math
+from manim import *
+from manim_voiceover import VoiceoverScene
+from manim_voiceover.services.recorder import RecorderService
 
-class HowToManageMemSpace(MovingCameraScene):
+video_script = """
+        <bookmark mark='A'/>
+        考虑一个问题, 如果提供给你这么一片内存, 你会怎么管理它呢?
+        <bookmark mark='B'/>
+        我们首先将物理内存分成一个一个的小块, 每个小块的大小为 4KB, 被称为页
+        <bookmark mark='C'/>
+        为了管理这些页, 我们需要一个数据结构, 用来记录每个页的状态, 以及它的属性,
+        <bookmark mark='D'/>
+        这里, 我们选择使用链表, 将所有的物理页穿起来, 形成一个空闲内存链表
+        <bookmark mark='E'/>
+        接下来我们仔细看看每一个页的结构, 本视频当中, 我们主要关注其中的一个属性,
+        <bookmark mark='F'/>
+        也就是 property
+        <bookmark mark='G'/>
+        它表示我管理了多少个页, 换句话说, 我管理了多大的内存.
+        <bookmark mark='H'/>
+        这里为了表示方便, 我们假设这个属性设置为 1000, 也就是说, 我检测到有 1000 个页, 4MB 的内存
+        <bookmark mark='I'/>
+        非头节点的页结构,我们将它们的 property 设置为 0
+        <bookmark mark='J'/>
+        这样, 我们就得到了一个空闲内存链表, 也就是我们的空闲物理内存
+        <bookmark mark='K'/>
+        而空闲物理内存得到了以后, 接下来, 我们就需要考虑如何分配内存了
+        <bookmark mark='L'/>
+        这里我们演示的是最简单的分配方式, 也就是首次适应算法
+        <bookmark mark='M'/>
+        通俗来讲就是我找到第一个满足要求的内存块, 这内存就是我的了
+        <bookmark mark='N'/>
+        这里呢我们申请5个页的内存
+        <bookmark mark='O'/>
+        而在我获取到内存之后, 我需要将后面的内存的空闲内存链表进行更新
+        <bookmark mark='P'/>
+        也就是将 property 减去申请了的内存大小, 在这里, 我们假设申请的页数是6, 1000-6=994
+        <bookmark mark='Q'/>
+        然后,我就需要将这个内存块从空闲内存链表中删除,
+        <bookmark mark='R'/>
+        也就是将这个内存块从链表中断开
+        <bookmark mark='S'/>
+        接下来, 我们来到释放内存, 我们申请到的内存应该如何释放呢?
+        <bookmark mark='T'/>
+        诶,你可以说, 我们直接把链表接回去不就可以了吗?
+        在我们的情况当中, 我们是第一次申请内存, 所以从内存的开始地址进行申请. 然而, 现实的情况是, 我们申请到的内存, 有很多可能是
+        <bookmark mark='U'/>
+        在中间. 并且是不连续的
+        <bookmark mark='V'/>
+        这个时候, 咱们就需要判定它在物理地址是否相邻,如果是,就需要让相邻的内存合并起来.所以问题变成了,我们怎么知道我们要释放的是连续的呢?
+        <bookmark mark='W'/>
+        基于这个问题, 我们要做的首先确定要释放的内存的基础地址,
+        <bookmark mark='X'/>
+        再加上要释放的大小
+        <bookmark mark='Y'/>
+        这样就能够得出要释放的内存的最后一个地址
+        <bookmark mark='Z'/>
+        然后, 我们将空闲链表当中的每一个地址进行遍历, 并且将其地址和要释放内存的最后一个地址比较,
+        <bookmark mark='AA'/>
+        如果相等, 那么就说明这个 memory 是连续的, 那么就可以进行合并.
+        <bookmark mark='AB'/>
+        但是, 如果不相等, 那么就说明这个 memory 不是连续的, 那么就不需要进行合并, 而是直接将链表接入到最接近的内存块的前面
+        <bookmark mark='AC'/>
+        在我们的实例当中, 我们可以直接链接回去, 并且合并这些内存.
+        这样, 我们就完成了内存的分配和释放
+"""
+
+class HowToManageMemSpace(MovingCameraScene, VoiceoverScene):
     memory = VGroup()
     quare_mem = VGroup()
     linked = VGroup()
@@ -39,7 +104,7 @@ class HowToManageMemSpace(MovingCameraScene):
 
     def linked(self) -> VGroup:
         arrows = VGroup(*[
-            Arrow(
+            DoubleArrow(
                 square.get_center()+0.05*RIGHT,
                 square.get_center() + 0.95*RIGHT,
                 stroke_width=0.5,
@@ -49,25 +114,39 @@ class HowToManageMemSpace(MovingCameraScene):
 
         self.linked = arrows
 
-    def allcated(self) -> VGroup:
+    def play_source_code(self) -> VGroup:
         pass
 
     def construct(self):
+        self.set_speech_service(RecorderService())
+        with self.voiceover(text=video_script) as tracker:
+            self.main()
+
+    def main(self):
+        # 考虑一个问题, 如果提供给你这么一片内存, 你会怎么管理它呢?
         self.create_memory()
+        #self.wait_until_bookmark("A")
         self.play(FadeIn(self.memory))
         self.square_mem()
         self.square_mem.align_to(self.memory[0], UL)
+
+        # 我们首先将物理内存分成一个一个的小块, 每个小块的大小为 4KB, 被称为页
+        #self.wait_until_bookmark("C")
         self.play(
             FadeIn(self.square_mem),
             FadeOut(self.memory[0])
         )
 
+        # 为了管理这些页, 我们需要一个数据结构, 用来记录每个页的状态, 以及它的属性,
+        #self.wait_until_bookmark("D")
         self.play(
             self.square_mem.animate.arrange(RIGHT, buff = 0.5).to_edge(LEFT),
             FadeOut(self.memory),
             run_time=3
         )
 
+        #这里, 我们选择使用链表, 将所有的物理页穿起来, 形成一个空闲内存链表
+        #self.wait_until_bookmark("C")
         self.linked()
         for i,j in enumerate(self.linked, start=1):
             self.play(Create(j), run_time=1.0/i)
@@ -90,22 +169,33 @@ class HowToManageMemSpace(MovingCameraScene):
 
         temp = table.copy()
 
+        # 接下来我们仔细看看每一个页的结构, 本视频当中, 我们主要关注其中的一个属性, 
+        #self.wait_until_bookmark("C")
         self.play(ReplacementTransform(self.square_mem[0], table))
+
+        # 也就是 property
+        self.play(
+            Indicate(self.square_mem[0]),
+        )
+
+        # 表示我管理了多少个页, 换句话说, 我有多大的内存.
+        # 这里为了表示方便, 我们将这个属性设置为 1000, 也就是说, 我有 1000 个页, 4MB 的内存
         self.play(
             ReplacementTransform(
                 table.get_rows()[0][0],
-                Text("0").scale(0.06).set_stroke(width=0.2).move_to(table.get_rows()[0][0].get_center())
+                Text("0").scale(0.06).set_stroke(width=0.2).move_to(table.get_rows()[0][0].get_center()),
             ),
             ReplacementTransform(
                 table.get_rows()[0][1],
-                Text("0").scale(0.06).set_stroke(width=0.2).move_to(table.get_rows()[0][1].get_center())
+                Text("0").scale(0.06).set_stroke(width=0.2).move_to(table.get_rows()[0][1].get_center()),
             ),
             ReplacementTransform(
                 table.get_rows()[0][2],
-                Text("1000").scale(0.06).set_stroke(width=0.2).move_to(table.get_rows()[0][2].get_center())
+                Text("1000").scale(0.06).set_stroke(width=0.2).move_to(table.get_rows()[0][2].get_center()),
             )
         )
 
+        # 而其他的页,因为不是头节点,我们将它们的 property 设置为 0
         for i, obj in enumerate(self.square_mem[1:], start=1):
             t = temp.copy().move_to(obj.get_center())\
                                .scale_to_fit_width(obj.get_width()*1.2)\
@@ -114,66 +204,181 @@ class HowToManageMemSpace(MovingCameraScene):
                 self.camera.frame.animate.move_to(obj.get_center()),
                 ReplacementTransform(obj, t),
                 ReplacementTransform(
-                    t.get_rows()[0][0],
-                    Text("0").scale(0.06).set_stroke(width=0.2).move_to(t.get_rows()[0][0].get_center())
+                    mobject=t.get_rows()[0][0],
+                    target_mobject=Text("0").scale(0.06).set_stroke(width=0.2).move_to(t.get_rows()[0][0].get_center()),
                 ),
                 ReplacementTransform(
-                    t.get_rows()[0][1],
-                    Text("0").scale(0.06).set_stroke(width=0.2).move_to(t.get_rows()[0][1].get_center())
+                    mobject=t.get_rows()[0][1],
+                    target_mobject=Text("0").scale(0.06).set_stroke(width=0.2).move_to(t.get_rows()[0][1].get_center()),
                 ),
                 ReplacementTransform(
                     t.get_rows()[0][2],
-                    Text("0").scale(0.06).set_stroke(width=0.2).move_to(t.get_rows()[0][2].get_center())
+                    Text("0").scale(0.06).set_stroke(width=0.2).move_to(t.get_rows()[0][2].get_center()),
                 ),
                 run_time=1/i
             )
 
         self.wait()
 
+        # 这样, 我们就得到了一个空闲内存链表, 也就是我们的空闲物理内存
         self.play(
             self.camera.frame.animate.scale(30),
         )
         self.play(
-            self.camera.frame.animate.move_to(self.square_mem[20])
+            self.camera.frame.animate.move_to(self.square_mem[18])
         )
 
-        # allocating memory
+        free_group = VGroup()
+        free_mem = SurroundingRectangle(self.square_mem, color=GREEN)
+        surrand_free = Brace(free_mem, direction=DOWN, buff=SMALL_BUFF)
+        text_free = surrand_free.get_text("Free Memory").set_color(GREEN)
+        free_group.add(free_mem, surrand_free, text_free)
 
-        all_mem = SurroundingRectangle(self.square_mem, color=RED)
-        surrand_all = Brace(all_mem, direction=DOWN, buff=SMALL_BUFF)
-        text_all = surrand_all.get_text("Allocated Memory").set_color(RED)
+        # new free mem
+        new_free_group = VGroup()
+        new_free_mem = SurroundingRectangle(self.square_mem[6:], color=GREEN)
+        new_surrand_free = Brace(new_free_mem, direction=DOWN, buff=SMALL_BUFF)
+        new_text_free = new_surrand_free.get_text("Free Memory").set_color(GREEN)
+        new_free_group.add(new_free_mem,new_surrand_free, new_text_free)
 
-        allocation_group = VGroup()
-        brace_group = VGroup()
-        text_group = VGroup()
-        allocation_group.add(all_mem)
-        brace_group.add(surrand_all)
-        text_group.add(text_all)
-        length = 36
-        for i in range(3):
-            length /= 2
-            length = math.ceil(length)
-            s = SurroundingRectangle(self.square_mem[0:length], color=RED)
-            b = Brace(s, direction=DOWN, buff=SMALL_BUFF)
-            t = b.get_text("Allocated Memory").set_color(RED)
-            allocation_group.add(s)
-            brace_group.add(b)
-            text_group.add(t)
+        # allocated mem
+        allocated_group = VGroup()
+        allocated_memory = SurroundingRectangle(self.square_mem[0:6], color=RED)
+        allocated_brace = Brace(allocated_memory, direction=DOWN, buff=SMALL_BUFF)
+        allocated_text = allocated_brace.get_text("Allocated Memory").set_color(RED)
+        allocated_group.add(allocated_memory, allocated_brace, allocated_text)
 
-        self.play(Create(all_mem))
+        # 而空闲物理内存得到了以后, 接下来, 我们就需要考虑如何分配内存了
+        # 这里我们演示的是最简单的分配方式, 也就是首次适应算法
         self.play(
-            GrowFromCenter(brace_group[0]),
-            Write(text_group[0]))
+            Create(free_mem),
+            GrowFromCenter(surrand_free),
+            Write(text_free)
+        )
+        # 通俗来讲就是我找到第一个满足要求的内存块, 这内存就是我的了
+        self.play(
+            Indicate(self.square_mem[0:6]),
+        )
+        self.play(
+            Indicate(self.square_mem[0:10]),
+        )
 
-        for i in range(3):
+        # 这里我们申请5个页的内存
+        self.play(
+            Create(allocated_group),
+        )
+
+        self.play(
+            self.camera.frame.animate.move_to(self.linked[2]),
+        )
+        self.play(
+            self.camera.frame.animate.scale(0.14)
+        )
+
+        self.camera.frame.save_state()
+
+        # 而在我获取到内存之后, 我需要将后面的内存的空闲内存链表进行更新
+        self.play(
+            self.camera.frame.animate.move_to(self.square_mem[6]),
+        )
+        self.play(
+            self.camera.frame.animate.scale(0.3)
+        )
+        # 也就是将 property 减去申请了的内存大小, 在这里, 我们假设申请的页数是6, 1000-6=994
+        self.play(
+                ReplacementTransform(
+                    self.square_mem[6].get_rows()[0][2],
+                    Text("994").scale(0.06).set_stroke(width=0.2).move_to(self.square_mem[6].get_rows()[0][2].get_center()),
+                ),
+        )
+
+        self.play(Restore(self.camera.frame))
+        self.wait()
+
+        allocated_group.add(self.square_mem[0:6], self.linked[0:6])
+
+        # 然后,我就需要将这个内存块从空闲内存链表中删除,
+        self.play(
+            ReplacementTransform(free_group[0], new_free_group[0]),
+            ReplacementTransform(free_group[1], new_free_group[1]),
+            ReplacementTransform(free_group[2], new_free_group[2]),
+        )
+
+        # 也就是将这个内存块从链表中断开
+        self.play(
+            self.camera.frame.animate.scale(2),
+        )
+
+        self.play(
+            allocated_group.animate.next_to(self.square_mem[6], UP, buff=1),
+        )
+
+        self.play(
+            allocated_group.animate.align_to(self.square_mem[6], LEFT),
+            self.camera.frame.animate.move_to(self.square_mem[8]),
+        )
+        self.wait()
+
+        # 接下来, 我们来到 free memory , 上面的这个 memory 如何 free? 
+        # 诶,你可以说, 我们直接把链表接回去不就可以了吗? 
+        allocated_group.save_state()
+        self.play(allocated_group.animate.next_to(self.square_mem[6],LEFT, buff=0.1).shift(DOWN*0.5))
+        self.play(Restore(allocated_group))
+
+        # 在我们的情况当中, 我们是第一次申请内存, 所以从内存的开始地址进行申请. 然而, 现实的情况是, 我们申请到的内存, 有很多可能是在中间. 并且是不连续的
+        self.play(
+            Indicate(self.square_mem[7:10]),
+            Indicate(self.square_mem[11:12]),
+            Indicate(self.square_mem[14:18]),
+        )
+
+        # 这个时候, 咱们就需要判定内存区域是否相邻,如果是,就需要让相邻的内存合并起来.所以问题变成了,我们怎么知道我们要释放的是连续的呢?
+        self.play(
+            ApplyWave(self.square_mem[7:10]),
+            ApplyWave(self.square_mem[11:12]),
+            ApplyWave(self.square_mem[14:18]),
+        )
+
+        # 基于这个问题, 我们要做的首先确定要释放的内存的基础地址,
+        self.play(
+            Indicate(self.square_mem[0]),
+        )
+        # 再加上要释放的大小
+        self.play(
+            Indicate(allocated_brace),
+        )
+        # 这样就能够得出要释放的内存的最后一个地址
+        self.play(
+            Indicate(self.square_mem[5]),
+        )
+
+        # 然后, 我们将空闲链表当中的每一个地址进行遍历, 并且将其地址和要释放内存的最后一个地址比较, 
+        self.camera.frame.save_state()
+        for i, obj in enumerate(self.square_mem[6:]):
             self.play(
-                ReplacementTransform(allocation_group[i], allocation_group[i+1]),
-                ReplacementTransform(brace_group[i], brace_group[i+1]),
-                ReplacementTransform(text_group[i], text_group[i+1]),
-                self.camera.frame.animate.move_to(allocation_group[i+1].get_center()),
+                self.camera.frame.animate.move_to(obj),
+                Indicate(obj),
+                run_time=1/(i+1)
             )
-            self.play(
-                self.camera.frame.animate.scale(0.5),
-            )
+        self.play(Restore(self.camera.frame))
+
+        # 如果相等, 那么就说明这个 memory 是连续的, 那么就可以进行合并.
+        self.square_mem.save_state()
+        self.play(self.square_mem[5].animate.scale(2),
+                  self.square_mem[6].animate.scale(2),)
+        self.play(
+            Indicate(self.square_mem[6]),
+            Indicate(self.square_mem[5]),
+        )
+
+        # 但是, 如果不相等, 那么就说明这个 memory 不是连续的, 那么就不需要进行合并, 而是直接将链表接入到最接近的内存块的前面
+        self.play(
+            Wiggle(self.square_mem[6]),
+            Wiggle(self.square_mem[5]),
+        )
+        self.play(Restore(self.square_mem))
+
+        # 在我们的实例当中, 我们可以直接链接回去, 并且合并这些内存.
+        self.play(allocated_group.animate.next_to(self.square_mem[6],LEFT, buff=0.1).shift(DOWN*0.5))
 
         self.wait()
