@@ -126,8 +126,6 @@ class HowToManageMemSpace(MovingCameraScene, VoiceoverScene):
 
         self.linked = arrows
 
-    def play_source_code(self) -> VGroup:
-        pass
 
     def construct(self):
         self.set_speech_service(RecorderService())
