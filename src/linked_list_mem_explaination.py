@@ -70,10 +70,10 @@ class PageLinkedListManagement(MovingCameraScene):#, VoiceoverScene):
         ]
         for order in three_orders:
             for i in order:
-                self.play(Restore(allocations[i]))
+                self.play(Restore(allocations[i]), run_time=0.3)
 
             for i in order:
                 allocations[i].save_state()
-                self.play(allocations[i].animate.move_to(allocations[i].get_center() + 6 * UP + i * 2* RIGHT))
+                self.play(allocations[i].animate.move_to(allocations[i].get_center() + 6 * UP + i * 2* RIGHT),run_time=0.3)
 
         self.wait()
