@@ -55,7 +55,6 @@ class PageLinkedListManagement(MovingCameraScene):#, VoiceoverScene):
             allocations[index].add(self.page_link[i:i + 3])
             index += 1
 
-
         for i in range(3):
             desc = Text("Proces {}".format(i+1)).scale(4).next_to(allocations[i].get_center(), UP, buff=3)
             allocations[i].add(desc)
@@ -64,13 +63,17 @@ class PageLinkedListManagement(MovingCameraScene):#, VoiceoverScene):
             self.play(allocations[i+1][0].get_rows()[1][1].animate.scale(3))
             self.set_table_value(allocations[i+1][0], 1, 1, Text(str(12-(i+1)*3)).scale(3).set_color(RED))
 
-        for i in range(3):
-            self.play(Restore(allocations[i]))
+        three_orders = [
+            [0,1,2],
+            [2,1,0],
+            [1,2,0],
+        ]
+        for order in three_orders:
+            for i in order:
+                self.play(Restore(allocations[i]))
 
-        allocations.save_state()
-        for i in range(3):
-            self.play(allocations[i].animate.move_to(allocations[i].get_center() + 6 * UP + i * 2* RIGHT))
-
-        #for i in range(3):
+            for i in order:
+                allocations[i].save_state()
+                self.play(allocations[i].animate.move_to(allocations[i].get_center() + 6 * UP + i * 2* RIGHT))
 
         self.wait()
