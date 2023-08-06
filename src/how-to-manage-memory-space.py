@@ -117,7 +117,7 @@ class HowToManageMemSpace(MovingCameraScene, VoiceoverScene):
     def linked(self) -> VGroup:
         arrows = VGroup(*[
             DoubleArrow(
-                square.get_center()+0.05*RIGHT,
+                square.get_center() + 0.05*RIGHT,
                 square.get_center() + 0.95*RIGHT,
                 stroke_width=0.5,
             )
