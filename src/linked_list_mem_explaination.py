@@ -17,6 +17,7 @@ class PageLinkedListManagement(MovingCameraScene):#, VoiceoverScene):
                  ["pre-next"]],
                 row_labels=[Text("flag"), Text("property"), Text("page_link")],
                 include_outer_lines=True,
+                background_rectangle_color=BLUE,
                 arrange_in_grid_config={"cell_alignment": RIGHT})
                 for _ in range(12)
         ])
