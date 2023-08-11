@@ -1,0 +1,26 @@
+classDiagram
+    class Script{
+        +str text
+        +list scenes
+        +__init__(text: str, scenes: list)
+    }
+    class Animation{
+        +Scene scene
+        +Mobject mobject
+        +__init__(scene: Scene, mobject: Mobject)
+    }
+    class VideoControls{
+        +bool play
+        +bool pause
+        +bool rewind
+        +bool fast_forward
+        +__init__(play: bool, pause: bool, rewind: bool, fast_forward: bool)
+    }
+    class KeyboardInputExample{
+        +str key
+        +bool interrupt
+        +__init__(key: str, interrupt: bool)
+    }
+    Script "1" -- "*" Animation: has
+    Animation "1" -- "*" VideoControls: has
+    Animation "1" -- "*" KeyboardInputExample: has

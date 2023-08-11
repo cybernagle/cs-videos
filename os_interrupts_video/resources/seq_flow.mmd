@@ -1,0 +1,21 @@
+sequenceDiagram
+    participant M as Main
+    participant S as Script
+    participant A as Animation
+    participant V as VideoControls
+    participant K as KeyboardInputExample
+    M->>S: create script
+    S->>M: return script
+    M->>A: create animations
+    A->>M: return animations
+    M->>V: create video controls
+    V->>M: return video controls
+    M->>K: create keyboard input example
+    K->>M: return keyboard input example
+    M->>A: add animations to script
+    A->>M: return updated script
+    M->>A: add video controls to animations
+    A->>M: return updated animations
+    M->>A: add keyboard input example to animations
+    A->>M: return updated animations
+    M->>M: compile video
