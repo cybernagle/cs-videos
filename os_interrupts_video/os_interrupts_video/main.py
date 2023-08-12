@@ -3,6 +3,7 @@ from script import Script
 from animation import Animation
 from video_controls import VideoControls
 from keyboard_input_example import KeyboardInputExample
+from animation import InterruptScene
 
 class Main:
     def __init__(self):
@@ -29,7 +30,7 @@ class Main:
             animation.create_animation()
             animation.remove_animation()
 
-        self.video_controls.play_video("path_to_your_video_file")
+        #self.video_controls.play_video("./media/videos/1080p60")
 
         self.keyboard_input_example.render()
 
