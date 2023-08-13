@@ -1,0 +1,15 @@
+classDiagram
+    class Computer{
+        +dict interrupt_table
+        +bool is_running
+        +__init__(interrupt_table: dict)
+        +run()
+        +interrupt_handler(interrupt: str)
+    }
+    class InterruptTable{
+        +dict table
+        +__init__()
+        +add_interrupt(interrupt: str)
+        +remove_interrupt(interrupt: str)
+    }
+    Computer "1" -- "1" InterruptTable: has
