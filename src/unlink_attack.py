@@ -216,6 +216,8 @@ class UnlinkAttack(VoiceoverScene):
         ))
         arrows.add(left_arrow)
 
+        # 假设我们要释放 chunk2
+        self.play(Indicate(self.chunks[1]))
         # normal unlink
         arrows.save_state()
 
@@ -244,7 +246,6 @@ class UnlinkAttack(VoiceoverScene):
         self.play(Indicate(self.chunks[1]))
           
         self.play(Restore(arrows))
-        """
 
         # what we need to do is, unlink ...
         self.create_fake_chunk()
@@ -265,7 +266,6 @@ class UnlinkAttack(VoiceoverScene):
 
         self.play(FadeOut(self.malloc))
         # but ,how to pass security check?
-        """
 
         # unlink
         self.wait()
