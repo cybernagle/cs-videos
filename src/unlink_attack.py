@@ -363,7 +363,7 @@ class UnlinkAttack(Scene):#VoiceoverScene):
         )
         chunk0_arrow = Arrow(
             start=self.chunks[0][2].get_left(),
-            end=self.stack[0][3],
+            end=self.stack[0][3].get_right(),
             tip_length=0.15
         )
         self.play(
