@@ -4,6 +4,23 @@ class Trap(Scene):
 
     memory = None
     cs = None
+    gdt = None
+
+    def create_gdt(self):
+        table = Table(
+            [["0:", "kernel code 0x0"], 
+             ["1:", "kernel data"], 
+             ["2:", "user code 0x123"], 
+             ["3:", "user data"]],
+            include_outer_lines=True,
+            h_buff=1.5,
+            v_buff=0.7,
+            line_config={"stroke_color": WHITE, "stroke_width": 1},
+            background_stroke_color=WHITE
+        )
+        self.gdt = table
+        
+
     def create_memory(self) -> VGroup:
         mem = VGroup()
         addresses = VGroup()
@@ -19,7 +36,7 @@ class Trap(Scene):
 
     def create_cs(self):
         keys = VGroup(*[Rectangle(height=0.5, width=0.5).set_fill(WHITE, opacity=0.2) for i in range(4)]).arrange(RIGHT, buff=0)
-        labels = VGroup(*[Text(char).scale(0.5).move_to(keys[i]) for i, char in enumerate("0111")])
+        labels = VGroup(*[Text(char).scale(0.5).move_to(keys[i]) for i, char in enumerate("1011")])
         self.cs = VGroup(keys, labels)
 
     def construct(self):
@@ -76,7 +93,7 @@ class Trap(Scene):
         self.cs.move_to(reg)
 
         self.wait()
-        value = Tex(r"$\texttt{0x7}$", font_size = 36).move_to(reg)
+        value = Tex(r"$\texttt{0xB}$", font_size = 36).move_to(reg)
         self.play(ReplacementTransform(reg, value))
         self.wait()
         self.play(
@@ -88,16 +105,40 @@ class Trap(Scene):
         ))
         self.wait()
 
-        """
-        self.play(
-            change_last_two_bit_to_zero
-        )
-        self.play(
-            move(self.cs) to self.memory[15]
-        )
-        self.play(
-            move(self.cs) to self.memory[0]
-        )
-        """
+        self.create_gdt()
+        self.gdt.scale(0.5).next_to(self.memory[25], UP, buff=0.5)
+        self.play(Create(self.gdt))
 
+        self.play(Indicate(
+            self.gdt.get_cell((3,1))
+        ))
 
+        self.wait()
+        self.play(Indicate(
+            self.gdt.get_cell((3,0))
+        ))
+
+        self.play(
+            self.cs.animate.next_to(self.memory[15], DOWN)
+        )
+
+        labels_final = VGroup(*[Text(char).scale(0.5).move_to(self.cs[0][i]) for i, char in enumerate("00")])
+        self.play(
+            Transform(self.cs[1][0:2], labels_final)
+        )
+
+        self.wait()
+        self.play(
+            Indicate(self.gdt.get_cell((1,1)))
+        )
+
+        self.wait()
+        self.play(
+            self.cs.animate.next_to(self.memory[0], DOWN)
+        )
+
+        labels_final = VGroup(*[Text(char).scale(0.5).move_to(self.cs[0][i+2]) for i, char in enumerate("00")])
+        self.play(
+            Transform(self.cs[1][2:], labels_final)
+        )
+        self.wait()
