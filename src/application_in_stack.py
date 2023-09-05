@@ -7,12 +7,68 @@ class application_in_stack(Scene):
     gdt = None
     stack = None
 
+    main = None
+    io = None
+    test = None
+    getbuf = None
+    gets = None
+    launch = None
+
+    def init_code(self):
+        # 0x21
+        self.main = Code(
+            file_name="./code/application_in_stack_main.S",
+            tab_width=4, language="C", style="solarized-dark").scale(0.5)
+        # 0x20
+        self.launch = Code(
+            file_name="./code/application_in_stack_launch.S",
+            tab_width=4, language="C", style="solarized-dark").scale(0.5).next_to(self.main,direction=DOWN,aligned_edge=LEFT)
+        # 0x19
+        self.test = Code(
+            file_name="./code/application_in_stack_test.S",
+            tab_width=4, language="C", style="solarized-dark").scale(0.5).next_to(self.launch,direction=DOWN,aligned_edge=LEFT)
+
+        # 0x18
+        self.getbuf = Code(
+            file_name="./code/application_in_stack_getbuf.S",
+            tab_width=4, language="C", style="solarized-dark").scale(0.5).next_to(self.main,direction=RIGHT,aligned_edge=UP)
+        # 0x17
+        self.gets = Code(
+            file_name="./code/application_in_stack_gets.S",
+            tab_width=4, language="C", style="solarized-dark").scale(0.5).next_to(self.getbuf,direction=DOWN,aligned_edge=LEFT)
+        # 0x16
+        self.io = Code(
+            file_name="./code/application_in_stack_IO.S",
+            tab_width=4, language="C", style="solarized-dark").scale(0.5).next_to(self.gets,direction=DOWN,aligned_edge=LEFT)
+
+        self.asm = VGroup(
+            self.main,
+            self.io,
+            self.test,
+            self.getbuf,
+            self.gets,
+            self.launch,
+        )
+
+
+    def shift_code_indicator(self, index, source,target , size=1):
+        if size <= 1:
+            self.play(
+                source.animate.become(SurroundingRectangle(target.code[index])),
+                Indicate(target.code[index])
+            )
+        else:
+            self.play(
+                source.animate.become(SurroundingRectangle(target.code[index:index+size])),
+                Indicate(target.code[index:index+size])
+            )
+
     def create_stack(self):
         chunk_group = VGroup()
         text_group = VGroup()
-        text = ["", "" ,"" ,'', '', '', '']
+        text = ["", "" ,"" ,'', '', '', '', "",""]
         for i in range(len(text)):
-            r_color = BLUE
+            r_color = RED
             height = 0.5
             rect = Rectangle(color=r_color, fill_opacity=0.5, width=2, height=height,
                              grid_xstep=2.0, grid_ystep=height)
@@ -58,15 +114,88 @@ class application_in_stack(Scene):
     def construct(self):
 
         self.create_memory()
-        self.memory[0:15].set_color(BLUE)
-        self.memory[15:30].set_color(YELLOW)
-        self.memory.shift(DOWN*3)
+        self.add(self.memory)
+        self.play(
+            self.memory[0:15].animate.set_color(BLUE),
+            self.memory[15:30].animate.set_color(YELLOW)
+        )
+        self.wait()
+        self.play(
+            self.memory.animate.shift(DOWN*3)
+        )
+
+        self.play(
+            self.memory[15].animate.set_color(RED),
+        )
+
+
+        self.play(
+            self.memory[16:22].animate.set_color(PURPLE)
+        )
+
+        self.init_code()
+        self.asm.shift(UP*2.5+LEFT)
+
+        self.play(
+            Transform(self.memory[21].copy(),self.main)
+        )
+        self.play(
+            Transform(self.memory[20].copy(),self.launch)
+        )
+        self.play(
+            Transform(self.memory[19].copy(),self.test)
+        )
+        self.play(
+            Transform(self.memory[18].copy(),self.getbuf)
+        )
+        self.play(
+            Transform(self.memory[17].copy(),self.gets)
+        )
+        self.play(
+            Transform(self.memory[16].copy(),self.io)
+        )
+
+        indicator = SurroundingRectangle(self.main.code[2])
+        self.play(
+            Create(indicator),
+            Indicate(self.main.code[2])
+        )
+
+        # this just a bunch of shit.
+        reg = Text("cs:rip", color=BLUE).scale(0.5).next_to(self.memory[21],UP)
+        #rbp = Text("rbp", color=BLUE).scale(0.5).next_to(self.stack[1][0],DOWN)
+        #rsp = Text("rsp", color=BLUE).scale(0.5).next_to(self.stack[1][0],DOWN)
+        self.play(Create(reg))
+        self.wait()
+        self.play(reg.animate.next_to(self.memory[20], UP))
+        self.shift_code_indicator(4, indicator, self.launch)
+        self.wait()
+        self.play(reg.animate.next_to(self.memory[19], UP))
+        self.shift_code_indicator(4, indicator, self.test)
+        self.wait()
+        self.play(reg.animate.next_to(self.memory[18], UP))
+        self.shift_code_indicator(3, indicator, self.getbuf)
+        self.wait()
+        self.play(reg.animate.next_to(self.memory[17], UP))
+        self.shift_code_indicator(3, indicator, self.gets)
+        self.wait()
+        self.play(reg.animate.next_to(self.memory[16], UP))
+        self.shift_code_indicator(1, indicator, self.io)
+        self.wait()
+
+        self.play(reg.animate.next_to(self.memory[17], UP))
+        self.shift_code_indicator(3, indicator, self.gets)
+        self.play(reg.animate.next_to(self.memory[18], UP))
+        self.shift_code_indicator(3, indicator, self.getbuf)
+        self.play(reg.animate.next_to(self.memory[19], UP))
+        self.shift_code_indicator(4, indicator, self.test)
+        self.play(reg.animate.next_to(self.memory[20], UP))
+        self.shift_code_indicator(4, indicator, self.launch)
+        self.play(reg.animate.next_to(self.memory[21], UP))
+        self.shift_code_indicator(2, indicator, self.main)
 
         self.create_stack()
-        stack2 = self.stack.copy().shift(UP*2+RIGHT*3).set_color(YELLOW)
-        self.stack.shift(UP*2+LEFT*3).set_COLOR(BLUE)
+        kernel_stack = self.stack.copy().shift(UP*2+RIGHT*3).set_color(BLUE)
+        self.play(self.stack.animate.shift(UP*3+LEFT*5))
 
-        self.play(Create(self.memory))
-        self.play(Create(self.stack))
-        self.play(Create(stack2))
         self.wait()

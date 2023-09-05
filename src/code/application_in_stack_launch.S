@@ -1,0 +1,6 @@
+0x20 <launch.isra.1>:
+  push   %rbp
+  sub    $0x40,%rsp
+  ...
+  callq  0x19 <test>
+  ...
