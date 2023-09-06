@@ -51,7 +51,7 @@ class application_in_stack(Scene):
         )
 
 
-    def shift_code_indicator(self, index, source,target , size=1):
+    def shift_code_indicator(self, index, source,target , size=1, run_time=1):
         if size <= 1:
             self.play(
                 source.animate.become(SurroundingRectangle(target.code[index])),
@@ -60,7 +60,8 @@ class application_in_stack(Scene):
         else:
             self.play(
                 source.animate.become(SurroundingRectangle(target.code[index:index+size])),
-                Indicate(target.code[index:index+size])
+                Indicate(target.code[index:index+size]),
+                run_time=run_time
             )
 
     def create_stack(self):
@@ -124,9 +125,6 @@ class application_in_stack(Scene):
             self.memory.animate.shift(DOWN*3)
         )
 
-        self.play(
-            self.memory[15].animate.set_color(RED),
-        )
 
 
         self.play(
@@ -183,19 +181,43 @@ class application_in_stack(Scene):
         self.shift_code_indicator(1, indicator, self.io)
         self.wait()
 
-        self.play(reg.animate.next_to(self.memory[17], UP))
+        self.play(reg.animate.next_to(self.memory[17], UP),run_time=0.3)
         self.shift_code_indicator(3, indicator, self.gets)
-        self.play(reg.animate.next_to(self.memory[18], UP))
-        self.shift_code_indicator(3, indicator, self.getbuf)
-        self.play(reg.animate.next_to(self.memory[19], UP))
-        self.shift_code_indicator(4, indicator, self.test)
-        self.play(reg.animate.next_to(self.memory[20], UP))
-        self.shift_code_indicator(4, indicator, self.launch)
-        self.play(reg.animate.next_to(self.memory[21], UP))
-        self.shift_code_indicator(2, indicator, self.main)
+        self.play(reg.animate.next_to(self.memory[18], UP),run_time=0.3)
+        self.shift_code_indicator(3, indicator, self.getbuf, size=1, run_time=0.3)
+        self.play(reg.animate.next_to(self.memory[19], UP),run_time=0.3)
+        self.shift_code_indicator(4, indicator, self.test, size=1, run_time=0.3)
+        self.play(reg.animate.next_to(self.memory[20], UP),run_time=0.3)
+        self.shift_code_indicator(4, indicator, self.launch, size=1, run_time=0.3)
+        self.play(reg.animate.next_to(self.memory[21], UP),run_time=0.3)
+        self.shift_code_indicator(2, indicator, self.main, size=1, run_time=0.3)
+
+        # 返回的时候, 要怎么工作呢?
+        # 是时候引入我们的栈空间
+        self.play(
+            self.memory[29].animate.set_color(RED),
+        )
 
         self.create_stack()
-        kernel_stack = self.stack.copy().shift(UP*2+RIGHT*3).set_color(BLUE)
-        self.play(self.stack.animate.shift(UP*3+LEFT*5))
+        #kernel_stack = self.stack.copy().shift(UP*2+RIGHT*3).set_color(BLUE)
+        self.play(self.stack.next_to(self.memory[29]).animate.shift(UP*4+LEFT*12))
+
+        # 首先我们在栈底记
+
+        self.play(reg.animate.next_to(self.memory[20], UP))
+        self.shift_code_indicator(4, indicator, self.launch)
+        self.wait()
+        self.play(reg.animate.next_to(self.memory[19], UP))
+        self.shift_code_indicator(4, indicator, self.test)
+        self.wait()
+        self.play(reg.animate.next_to(self.memory[18], UP))
+        self.shift_code_indicator(3, indicator, self.getbuf)
+        self.wait()
+        self.play(reg.animate.next_to(self.memory[17], UP))
+        self.shift_code_indicator(3, indicator, self.gets)
+        self.wait()
+        self.play(reg.animate.next_to(self.memory[16], UP))
+        self.shift_code_indicator(1, indicator, self.io)
+        self.wait()
 
         self.wait()

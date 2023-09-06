@@ -1,4 +1,4 @@
-0x21 <main>:
+0x16 <main>:
   ... 
-  callq  0x20 <launch.isra.1>
+  callq  0x17 <launch.isra.1>
   ...

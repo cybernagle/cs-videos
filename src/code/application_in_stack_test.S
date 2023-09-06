@@ -1,7 +1,7 @@
-0x19 <test>:
+0x18 <test>:
   push   %rbp
   sub    $0x18,%rsp
   ...
-  callq  0x18 <getbuf>
+  callq  0x19 <getbuf>
   ...
   retq   
