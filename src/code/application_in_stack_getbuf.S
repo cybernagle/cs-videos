@@ -1,6 +1,5 @@
-0x19 <getbuf>:
-  push   %rbp
-  sub    $0x30,%rsp
-  callq  0x20 <Gets>
+0x190 <getbuf>:
+  sub    $0x10,%rsp
+  callq  0x1a0 <Gets>
   ...
   retq   

@@ -1,5 +1,5 @@
-0x20 <Gets>:
-  push   %r14
+0x1a0 <Gets>:
   ...
-  callq  0x21 <_IO_getc@plt>
+  callq  0x1b0 <_IO_getc@plt>
+  ...
   nop
