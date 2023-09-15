@@ -5,6 +5,7 @@ class Characters(Scene):
 
     def create_face(self):
         face = Text(":-|").set_color(YELLOW).scale(2).rotate(1.5*PI)
+        face[2].shift(LEFT*0.13+DOWN*0.1)
         #surrand= SurroundingRectangle(face, color=WHITE,corner_radius=0.5)
         #surranded_face = VGroup(face, surrand)
         #surranded_face.scale(2).rotate(1.5*PI)
@@ -13,12 +14,22 @@ class Characters(Scene):
     def construct(self):
         self.create_face()
         self.add(self.face)
-        self.play(
-            self.face.animate.become(Text(":-o").scale(2).rotate(1.5*PI).set_color(YELLOW)),
-        )
+        o = Text(":-0").scale(2).rotate(1.5*PI).set_color(YELLOW).shift(DOWN*0.05)
+        o[0].move_to(self.face[0])
+        o[1].move_to(self.face[1])
+        o[2].shift(LEFT*0.13+DOWN*0.3)
         self.wait()
         self.play(
-            self.face.animate.become(Text(":-)").scale(2).rotate(1.5*PI).set_color(YELLOW)),
+            self.face.animate.become(o),
+        )
+        self.wait()
+        smile = Text(";-)").scale(2).rotate(1.5*PI).set_color(YELLOW)
+        smile[0].shift(LEFT*0.13)
+        smile[1].move_to(self.face[1])
+        smile[2].shift(LEFT*0.14+DOWN*0.1)
+
+        self.play(
+            self.face.animate.become(smile),
         )
         self.wait()
 
