@@ -19,7 +19,6 @@ class Keyboard(Scene):
         self.play(key_E.animate.set_fill(WHITE, opacity=0.2), label_E.animate.set_color(BLACK), run_time=0.1)
 
     def construct(self):
-
         self.keyboard()
         self.add(self.keyboard)
         self.press(2)
