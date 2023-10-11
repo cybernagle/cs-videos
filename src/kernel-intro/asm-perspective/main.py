@@ -15,10 +15,18 @@ class VonNeomann(Scene):
 
     def init_cpu(self):
         self.cpu = VGroup(
-            *[Square(side_length=0.8, fill_opacity=0.5).set_color(BLUE) for _ in range(9)]
+            *[Square(side_length=0.8, fill_opacity=0.5).set_color(BLUE) for _ in range(4)]
         )
-        self.cpu.arrange_in_grid(3,3,buff=0)
+        self.cpu.arrange_in_grid(2,2,buff=0)
 
+    def shift_asm(self,obj,target, index):
+        binarys = obj
+        asm = target
+        self.play(
+            binarys[index].animate.shift(RIGHT*5)
+        )
+        asm_line = Text(asm[0]).scale(0.3).move_to(binarys[0])
+        self.play(Transform(binarys[0], asm_line), run_time=1)
 
     def construct(self):
         # 这是一小块在代码段的内存
@@ -51,18 +59,13 @@ class VonNeomann(Scene):
         self.init_cpu()
         # 这是我们的 CPU
         self.add(self.cpu)
-        self.play(self.cpu.animate.shift(RIGHT*3))
+        self.play(self.cpu.animate.shift(RIGHT*4.5))
         self.wait()
 
         # 内存当中的指令,首先会被取到 cpu 当中.
         # 然后二进制的内容会被译码,二进制对应的指令开始具有语义(将二进制向右移动,转换成汇编指令)
 
-        #1010111111110000 -> mov ax, 0AFFh
-        #1010111000001111 -> mov bx, 0AEFh
-        #1110101011111111 -> mov cx, 0EBFFh
-        #1010100011111111 -> mov dx, 0A3FFh
-        #0000001101100000 -> mov si, 03B0h
-
+        #1111111111100000 -> jmpq *%rax
         asm = [
             "mov ax, 0AFFh",
             "mov bx, 0AEFh",
@@ -70,14 +73,48 @@ class VonNeomann(Scene):
             "mov dx, 0A3FFh",
             "mov si, 03B0h"
         ]
-        for i in range(len(asm)):
-            self.play(
-                binarys[i].animate.shift(RIGHT*5)
-            )
-            a = Text(asm[i]).scale(0.3).move_to(binarys[i])
-            self.play(Transform(binarys[i], a), run_time=1)
 
         # try to do operation
-        self.play(self.cpu.animate.arrange_in_grid(3,3,0.5))
-        
+        self.play(self.cpu.animate.arrange_in_grid(2,2,0.5))
+        registers = ["ax", "bs", "ss","sp"]
+        reg_group = VGroup()
+        for i in range(len(registers)):
+            t = Text(registers[i], color=WHITE).scale(0.5).next_to(self.cpu[i], DOWN, buff=0.15)
+            reg_group.add(t)
+        self.play(
+            FadeIn(reg_group)
+        )
+
+        process = Text("取指令", color=YELLOW).shift(UP*2)
+        self.add(process)
+
+        #self.play(
+        #    binarys[0].animate.shift(RIGHT*5)
+        #)
+        #asm_line = Text(asm[0]).scale(0.3).move_to(binarys[0])
+        #self.play(Transform(binarys[0], asm_line), run_time=1)
+        self.shift_asm(binarys,asm, 0)
+
+        self.play(
+            process.animate.become(Text("指令译码", color=YELLOW).shift(UP*2))
+        )
+        self.play(
+            process.animate.become(Text("执行指令", color=YELLOW).shift(UP*2))
+        )
+        self.play(
+            process.animate.become(Text("访存取数", color=YELLOW).shift(UP*2))
+        )
+        self.play(
+            process.animate.become(Text("结果写回", color=YELLOW).shift(UP*2))
+        )
+
+        self.play(FadeOut(process))
+
+        #for i in range(len(asm)):
+        #    self.play(
+        #        binarys[i].animate.shift(RIGHT*5)
+        #    )
+        #    a = Text(asm[i]).scale(0.3).move_to(binarys[i])
+        #    self.play(Transform(binarys[i], a), run_time=1)
+
         self.wait()
