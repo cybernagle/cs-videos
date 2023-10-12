@@ -5,7 +5,8 @@ class VonNeomann(Scene):
     cpu = None
     def create_memory(self):
         mem = VGroup()
-        for i in range(5):
+        for i in range(8):
+            color = BLUE
             rect = Rectangle(color=BLUE, fill_opacity=0.5, width=2, height=0.5,
                              grid_xstep=2, grid_ystep=0.5)
             rect.next_to(mem, DOWN, buff=0)
@@ -19,14 +20,17 @@ class VonNeomann(Scene):
         )
         self.cpu.arrange_in_grid(2,2,buff=0)
 
-    def shift_asm(self,obj,target, index):
+    def shift_asm(self,obj, index):
         binarys = obj
-        asm = target
         self.play(
             binarys[index].animate.shift(RIGHT*5)
         )
-        asm_line = Text(asm[0]).scale(0.3).move_to(binarys[0])
-        self.play(Transform(binarys[0], asm_line), run_time=1)
+
+    def decode(self,obj, target, index):
+        binarys = obj
+        asm = target
+        asm_line = Text(asm[index]).scale(0.3).move_to(binarys[index])
+        self.play(Transform(binarys[index], asm_line), run_time=1)
 
     def construct(self):
         # 这是一小块在代码段的内存
@@ -85,7 +89,7 @@ class VonNeomann(Scene):
             FadeIn(reg_group)
         )
 
-        process = Text("取指令", color=YELLOW).shift(UP*2)
+        process = Text("取指令", color=YELLOW).shift(UP*2.5)
         self.add(process)
 
         #self.play(
@@ -93,19 +97,31 @@ class VonNeomann(Scene):
         #)
         #asm_line = Text(asm[0]).scale(0.3).move_to(binarys[0])
         #self.play(Transform(binarys[0], asm_line), run_time=1)
-        self.shift_asm(binarys,asm, 0)
+        self.shift_asm(binarys, 0)
 
         self.play(
-            process.animate.become(Text("指令译码", color=YELLOW).shift(UP*2))
+            process.animate.become(Text("指令译码", color=YELLOW).shift(UP*2.5))
+        )
+        self.decode(binarys,asm,0)
+
+        self.play(
+            process.animate.become(Text("执行指令", color=YELLOW).shift(UP*2.5))
+        )
+        self.play(self.memory[6].animate.set_color(RED_A))
+        self.play(Text("keyboard").scale(0.5).animate.move_to(self.memory[6]))
+
+        self.play(
+            process.animate.become(Text("访存取数", color=YELLOW).shift(UP*2.5))
+        )
+
+        numbers = Text("0").scale(0.5).move_to(self.memory[6])
+        self.play(numbers.animate.next_to(self.memory[6],RIGHT))
+
+        self.play(
+            process.animate.become(Text("结果写回", color=YELLOW).shift(UP*2.5))
         )
         self.play(
-            process.animate.become(Text("执行指令", color=YELLOW).shift(UP*2))
-        )
-        self.play(
-            process.animate.become(Text("访存取数", color=YELLOW).shift(UP*2))
-        )
-        self.play(
-            process.animate.become(Text("结果写回", color=YELLOW).shift(UP*2))
+            numbers.animate.move_to(self.cpu[0])
         )
 
         self.play(FadeOut(process))
