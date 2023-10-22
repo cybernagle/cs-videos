@@ -82,3 +82,13 @@ class Process(Scene):
         self.play(
             virtual_memory.animate.shift(UP*3)
         )
+
+        code = self.create_virtual_memory(length=20,height=0.5, width=1, color=YELLOW)
+        self.play(
+            text.copy().animate.become(code)
+        )
+
+        self.wait()
+
+        # 表达一下
+        # enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
