@@ -3,16 +3,40 @@ from manim import *
 class Process(Scene):
     memory = None
     cpu = None
-    def create_memory(self):
+
+    def create_virtual_memory(self, length=30,width=1.5, height=0.5, color=YELLOW) -> VGroup:
         mem = VGroup()
-        for i in range(8):
-            color = BLUE
-            rect = Rectangle(color=BLUE, fill_opacity=0.5, width=2, height=0.5,
-                             grid_xstep=2, grid_ystep=0.5)
-            rect.next_to(mem, DOWN, buff=0)
+        width = width
+        height = height
+        for i in range(length):
+            buff = 0
+            rect = Rectangle(color=color, fill_opacity=0.5, width=width, height=height,
+                             grid_xstep=width, grid_ystep=height)
+            rect.next_to(mem, RIGHT, buff=buff)
             mem.add(rect)
+
         mem.move_to(ORIGIN)
-        self.memory = mem
+        return mem
+
+    def create_physical_mem(self, color=BLUE) -> VGroup():
+        squares = VGroup(*[
+            Square(color=color,side_length=0.5, fill_opacity=0.2).shift(i*0.5*DOWN + j*0.5*RIGHT).shift(UP*1.5+LEFT*0.8)
+            for i in range(9)
+            for j in range(4)
+        ])
+        return squares
+
+    def linked(self, memory) -> VGroup:
+        arrows = VGroup(*[
+            DoubleArrow(
+                square.get_center() + 0.05*RIGHT,
+                square.get_center() + 0.95*RIGHT,
+                stroke_width=0.5,
+            )
+            for square in memory
+        ])
+
+        return linked
 
     def init_cpu(self):
         self.cpu = VGroup(
@@ -33,48 +57,28 @@ class Process(Scene):
         self.play(Transform(binarys[index], asm_line), run_time=1)
 
     def construct(self):
-        # 这是一小块在代码段的内存
-        self.create_memory()
 
-        binary = [
-            "1010111111110000",
-            "1010111000001111",
-            "1110101011111111",
-            "1010100011111111",
-            "0000001101100000",
-        ]
-        binarys = VGroup()
-        for i in range(len(binary)):
-            t = Text(binary[i]).scale(0.3).move_to(self.memory[i])
-            binarys.add(t)
+        elfhdr = self.create_virtual_memory(length=2, color=GREEN)
+        text = self.create_virtual_memory(length=3, color=YELLOW)
+        stack = self.create_virtual_memory(length=1, color=RED)
 
-        # 它存放了一堆二进制数据
+        elfhdr.shift(LEFT*5)
+        text.next_to(elfhdr, RIGHT)
+        stack.next_to(text, RIGHT)
 
-        self.memory.shift(LEFT*5),
-        binarys.shift(LEFT*5)
-        self.add(self.memory)
-        self.add(binarys)
+        elfhdr_desc = Text("elfheader").scale(0.5).next_to(elfhdr[0], DOWN)
+        text_desc = Text(".text").scale(0.5).next_to(text[0], DOWN)
+        stack_desc = Text("stack").scale(0.5).next_to(stack[0], DOWN)
 
-        addr = ['0x1', '0x2', '0x3', '0x4', '0x5']
-        addr_group = VGroup()
-        for a in range(len(addr)):
-            addr_group.add(Text(addr[a]).scale(0.3).next_to(self.memory[a], LEFT))
+        self.add(
+            elfhdr, text, stack,
+            elfhdr_desc, text_desc, stack_desc
+        )
 
-        self.add(addr_group)
-
-        self.init_cpu()
-        self.cpu.shift(RIGHT*4.5)
-        self.cpu.arrange_in_grid(2,2,0.5)
-        self.add(self.cpu)
-
-        registers = ["ax", "bs", "ss","sp"]
-        reg_group = VGroup()
-        for i in range(len(registers)):
-            t = Text(registers[i], color=WHITE).scale(0.5).next_to(self.cpu[i], DOWN, buff=0.15)
-            reg_group.add(t)
-        self.add(reg_group)
-
-        a = Text("一个CPU指令", color=RED_B).shift(UP*0.5).scale(1.8).shift(LEFT*0.25)
-        self.add(a)
-        self.add(Text("的生命周期", color=RED_B).next_to(a, DOWN))
-
+        virtual_memory = VGroup(
+            elfhdr, text, stack,
+            elfhdr_desc, text_desc, stack_desc
+        )
+        self.play(
+            virtual_memory.animate.shift(UP*3)
+        )
