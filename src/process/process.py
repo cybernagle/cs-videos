@@ -123,17 +123,25 @@ class Process(Scene):
             FadeIn(self.code.code[28]),
         )
 
-        # process id
-        # 我们从进程 0 切换到进程1
+        # 首先我们将进程切换回来, 首先需要知道我们切换的是谁, 于是我们需要进程的 ID
+        # 这里, 我们假设原进程是0 , 
         p1 = Text("0", color=GREEN).scale(0.5).next_to(temp, DOWN)
         p2 = Text("1", color=GREEN).scale(0.5).next_to(temp2, DOWN)
-        # 有了进程以后,我们需要给每个进程予以ID
         self.play(
             Create(p1),
+        )
+
+        self.wait(0.5)
+        #切换后的进程是 1
+        self.play(
             Create(p2),
         )
+        # 在proc这个结构当中, 用 pid 来表示. sz 则代表的是 process 的大小.
         self.play(
             FadeIn(self.code.code[17:19]),
+        )
+        self.play(
+            Indicate(self.code.code[17:19]),
         )
 
         self.page_table = Table(
@@ -148,51 +156,74 @@ class Process(Scene):
 
         p2_page_table = self.page_table.copy().set_column_colors(YELLOW_B).next_to(self.page_table, DOWN)
 
-        # page table
-        # 进程0和进程1都有自己的页表.
+        # 而进程0和进程1都有自己的页表.
         # 我们需要从页表1切换到页表0, 这个被结构体当中的 pgdir 管理.
         self.play(FadeIn(self.page_table))
         self.play(FadeIn(p2_page_table))
         self.play(FadeIn(self.code.code[19]))
+        self.play(Indicate(self.code.code[19]))
 
         # context
         # 接下来, 进程在切换过程当中,有一些上下文环境,比如说当前指令位置ip寄存器.
         self.wait()
-        self.play(Wiggle(reg))
+        self.play(Indicate(reg))
         # 栈的地址, sp 
-        self.play(Wiggle(stack))
-        # 这个信息存储在 context 这个结构当中.
+        self.play(Indicate(stack))
+        # 这个信息会存储在 context 这个结构当中.
         self.play(
             FadeIn(self.code.code[8:15]),
         )
 
         i = 20
-        # trapframe: 在进程被中断而被切换时,会发生系统调用从而陷入内核态,并且发生切换.具体的系统调用如何分发,
-        #            以及分发后的上下文切换.
-        #            将由 trapfram 来进行管理.
-        # 细节可以看中断一章.
         self.play(
-            FadeIn(self.code.code[i+1]), # 20
+            FadeIn(self.code.code[i]),
+        )
+        self.play(
+            Indicate(self.code.code[i]),
+            Indicate(self.code.code[8:15]),
+        )
+        # trapframe: 还有中断信息,在进程被被切换一般都是会发生系统调用从而陷入内核态,并且发生切换.具体的系统调用如何分发,
+        #            以及分发后的上下文切换.
+        #            这个,就需要 trapfram 来进行管理.
+        # 细节可以看中断一章.
+        i+=1
+        self.play(
+            FadeIn(self.code.code[i]), # 20
+        )
+        self.play(
+            Indicate(self.code.code[i]), # 20
         )
 
         # kstack
-        # 在切换到内核态以后,而内核本身也需要对该进程的内核态上下文保存, 所以我们需要一个栈, 也就是 kstack 来保存其上下文信息.
+        # 而在切换到内核态以后,内核本身也需要对该进程的内核态上下文保存, 所以我们需要一个栈, 也就是 kstack 来保存其上下文信息.
         # 问题: kstack 是在用户空间还是在内核空间?
+        i+=1
         self.play(
-            FadeIn(self.code.code[i+1]), # 21
+            FadeIn(self.code.code[i]), # 21
+        )
+        self.play(
+            Indicate(self.code.code[i]), # 21
         )
 
-        # 然后, 我们程序的文件地址也需要被修改, 它们被 inode, 和 cwd: 当前文件路径两个字段来进行管理.
+        # 当然了, 我们程序的文件地址也需要被修改, 它们被 inode, 和 cwd, cwd也就是当前文件路径两个字段来进行管理.
+        i+=1
         self.play(
-            FadeIn(self.code.code[i+1:25]),
+            FadeIn(self.code.code[i:25]),
+        )
+        self.play(
+            Indicate(self.code.code[i:25])
         )
 
-        # 还有进程管理链表本身需要的: 父进程,是否被杀死等等辅助信息.
+        # 最后还有进程管理链表本身需要的: 父进程,是否被杀死等等辅助信息.
         self.play(
-            FadeIn(self.code.code[25:])
+            FadeIn(self.code.code[25:28]),
         )
+        self.play(
+            Indicate(self.code.code[25:28])
+        )
+        self.wait()
 
-        # 最后, 我们就完成了从进程1回到进程0的切换, 于是进程 0 变成了 running 的状态.
+        # 这样,我们就完成了从进程1回到进程0的切换, 于是进程 0 变成了 running 的状态.
         self.play(Restore(reg_group))
         runagain_state = Text("RUNNING").scale(0.4).move_to(run_state)
         self.play(run_state.animate.become(runagain_state))
