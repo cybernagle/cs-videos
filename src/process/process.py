@@ -152,7 +152,7 @@ class Process(Scene):
              ["4", ""]],
             col_labels=[Text("VPN"), Text("PFN")],
             include_outer_lines=True
-        ).set_column_colors(YELLOW).scale(0.3).align_on_border(RIGHT)
+        ).set_column_colors(YELLOW).scale(0.3).align_on_border(RIGHT).align_to(self.code,UP)
 
         p2_page_table = self.page_table.copy().set_column_colors(YELLOW_B).next_to(self.page_table, DOWN)
 
