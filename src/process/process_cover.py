@@ -13,8 +13,8 @@ class Process(Scene):
     def construct(self):
         self.proc()
         self.add(self.code.shift(RIGHT*3))
-        intro = Text("Porcess Struct", color=BLUE).scale(1.5).next_to(self.code, LEFT).shift(UP*0.5)
-        intro2 = Text("Introduction", color=BLUE).scale(1.5).next_to(intro, DOWN)
+        intro = Text("进程管理结构", color=BLUE).scale(1.5).next_to(self.code, LEFT).shift(UP*0.5)
+        intro2 = Text("怎么写?", color=BLUE).scale(1.5).next_to(intro, DOWN)
         
         self.add(intro, intro2)
         
