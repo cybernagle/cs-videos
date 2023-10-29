@@ -2,7 +2,7 @@ from manim import *
 import pickle
 import random
 
-class BinaryMatrix(Scene):
+class FileStructure(Scene):
     def construct(self):
 
         row = 31
@@ -19,16 +19,10 @@ class BinaryMatrix(Scene):
             for j in range(column):
                 num = matrix[i][j]
 
-                binary = Text(str(num), color="#008000", weight=BOLD,fill_opacity=0.5).scale(0.3).shift(
+                binary = Text(str(num), color=GREEN).scale(0.3).shift(
                     LEFT * (column / 2 - j) * 0.3 + UP * (row / 2 - i) * 0.25
                 )
                 rain.add(binary)
-                self.add(binary)
+        rain.add(binary)
 
-        self.wait()
-        rain.scale(0.5)
-
-        self.wait(0.5)
-
-        rain.scale(0.5)
         self.wait()
