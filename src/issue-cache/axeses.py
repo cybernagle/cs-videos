@@ -41,6 +41,7 @@ class PercentageUsage(Scene):
         self.wait()
 
         self.remove(ax, cpu, memory, disks, ax_labels,errors)
+        self.wait()
 
         bx = Axes(
             x_range=[-1, 10, 1], y_range=[-0.1, 1, 0.1], color=GREEN,
@@ -64,6 +65,7 @@ class PercentageUsage(Scene):
 
         self.wait()
         self.remove(disks_detail, bx_labels)
+        self.wait()
 
         self.add(memory, errors)
 
