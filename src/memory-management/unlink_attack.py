@@ -52,9 +52,11 @@ class UnlinkAttack(Scene):#VoiceoverScene):
     def create_malloc(self):
         self.malloc = Code(file_name="./malloc.c",
                         tab_width=4, language="C", style="solarized-dark")
+
     def create_hack_code(self):
         self.hackcode = Code(file_name="./hackcode.c",
                         tab_width=4, language="C", style="solarized-dark")
+
     def create_prev_free_bit(self):
         bit = Square(
             side_length=0.5,
@@ -92,6 +94,7 @@ class UnlinkAttack(Scene):#VoiceoverScene):
 
         chunk = VGroup(chunk_group, text_group)
         self.allocated_chunk = chunk
+
     def create_fake_chunk(self):
         chunk_group = VGroup()
         text_group = VGroup()
