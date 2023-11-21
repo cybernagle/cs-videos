@@ -40,7 +40,6 @@ class OSLibrary(VGroup):
             background_stroke_color=WHITE
         )
         return table
-        
 
     def create_cs(self):
         keys = VGroup(*[Rectangle(height=0.5, width=0.5).set_fill(WHITE, opacity=0.2) for i in range(4)]).arrange(RIGHT, buff=0)
@@ -135,91 +134,34 @@ class OSLibrary(VGroup):
             rectangles1, rectangles2, rectangles3
         )
 
+
     # memory related operation
-
-    def create_memory(self) -> VGroup:
-        mem = VGroup()
-        addresses = VGroup()
-        start_addr = 0x60
-        for i in range(30):
-            rect = Rectangle(color=BLUE, fill_opacity=0.5, width=0.4, height=1,
-                             grid_xstep=0.5, grid_ystep=1)
-            rect.next_to(mem, RIGHT, buff=0)
-            addr = Text(hex(start_addr), font_size = 10.5).next_to(rect, DOWN, buff=0.1)
-            start_addr += 0x10
-            addresses.add(addr)
-            mem.add(rect)
-
-        mem.shift(LEFT*6)
-        addresses.shift(LEFT*6)
-        self.memory = mem
-        self.address = addresses
-
     def create_memory(
             self,
-            length=30, color=YELLOW, width=1.5, height=0.5,
-            x_grid = 1.5, y_grid = 0.5
+            length=30, color=YELLOW, width=1.5, height=0.5, x_grid = 1.5, y_grid = 0.5,
+            addr=False, addr_start=0x0, addr_step=0x10
     ) -> VGroup:
         mem = VGroup()
+
+        addresses = VGroup()
+        start_addr = addr
+
         width = width
         height = height
+
         for i in range(length):
             buff = 0
-
             rect = Rectangle(color=color, fill_opacity=0.5, width=width, height=height,
                              grid_xstep=x_grid, grid_ystep=y_grid)
+
+            if addr:
+                address = Text(hex(start_addr), font_size = 10.5).next_to(rect, DOWN, buff=0.1)
+                start_addr += addr_step
+                addresses.add(address)
             rect.next_to(mem, RIGHT, buff=buff)
             mem.add(rect)
+        mem.add(addresses)
         mem.move_to(ORIGIN)
-        return mem
-
-    def create_memory(self, length=30, color=YELLOW) -> VGroup:
-        mem = VGroup()
-        width = 1.5
-        height = 0.5
-        for i in range(length):
-            buff = 0
-
-            rect = Rectangle(color=color, fill_opacity=0.5, width=width, height=height,
-                             grid_xstep=width, grid_ystep=height)
-            rect.next_to(mem, RIGHT, buff=buff)
-            mem.add(rect)
-        return mem
-
-    def create_memory(self) -> VGroup:
-        mem = VGroup()
-        addresses = VGroup()
-        start_addr = 0x0
-        for i in range(9):
-            rect = Rectangle(color=BLUE, fill_opacity=0.5, width=2, height=0.5,
-                      grid_xstep=2.0, grid_ystep=0.5)
-            #for j in range(3):
-            #    square = Square(color=BLUE,fill_opacity=0.5, width=0.5, height=0.5)
-            #    rect.add(square)
-            addr = Text(hex(start_addr), font_size = 15)
-            rect.next_to(mem, DOWN, buff=0)
-            addr.next_to(rect, LEFT, buff=0.2)
-            mem.add(rect)
-            addresses.add(addr)
-            if (start_addr == 0):
-                start_addr += 0x1FFFFFFF
-            else:
-                start_addr += 0x20000000
-
-        memory = VGroup(mem, addresses).shift(UP*2)
-        self.memory = memory
-
-    def create_memory(self, length=30, color=YELLOW) -> VGroup:
-        mem = VGroup()
-        width = 1.5
-        height = 0.5
-        for i in range(length):
-            buff = 0
-
-            rect = Rectangle(color=color, fill_opacity=0.5, width=width, height=height,
-                             grid_xstep=width, grid_ystep=height)
-            rect.next_to(mem, RIGHT, buff=buff)
-            mem.add(rect)
         return mem
 
     def create_mem_unit(
@@ -235,29 +177,19 @@ class OSLibrary(VGroup):
         return squares
 
     # page related & data structures
-    def linked(self) -> VGroup:
-        arrows = VGroup(*[
-            DoubleArrow(
-                square.get_center() + 0.05*RIGHT,
-                square.get_center() + 0.95*RIGHT,
-                stroke_width=0.5,
-            )
-            for square in self.square_mem
-        ])
-
-        self.linked = arrows
-
-    def linked(self) -> VGroup:
-        arrows = VGroup(*[
-            DoubleArrow(
-                square.get_center() + 0.05*RIGHT,
-                square.get_center() + 0.95*RIGHT,
-                stroke_width=0.5,
-            )
-            for square in self.square_mem
-        ])
-
-        self.linked = arrows
+    def linked(self, func):
+        def wrapper(*args, **kwargs):
+            results = func(*args, **kwargs)
+            arrows = VGroup(*[
+                DoubleArrow(
+                    square.get_center() + 0.05*RIGHT,
+                    square.get_center() + 0.95*RIGHT,
+                    stroke_width=0.5,
+                )
+                for square in results
+            ])
+            results.add(arrows)
+        return wrapper
 
     def init_pages(self) -> VGroup:
         tables = VGroup(*[
@@ -272,16 +204,6 @@ class OSLibrary(VGroup):
                 for _ in range(12)
         ])
         self.pages = tables
-
-    def set_link(self) -> VGroup:
-        arrows = VGroup(*[
-            DoubleArrow(
-                obj.get_rows()[2][0].get_center() + 5.4 * RIGHT,
-                obj.get_rows()[2][0].get_center() + 7.7 * RIGHT,
-            )
-            for obj in self.pages
-        ])
-        self.page_link = arrows
 
     def set_table_value(self, table: Table, row: int, col: int, value: Text) -> Table:
         self.play(
