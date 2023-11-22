@@ -75,6 +75,19 @@ class APacket(Scene):
         self.play(FadeOut(protocol))
         proto_name = Text("嘴层", color=WORD_B).scale(2)
         self.play(FadeIn(proto_name))
+        mouth_level = Line(LEFT*5, RIGHT*5).next_to(proto_name, DOWN)
+
+        wechat = ImageMobject("./resource/wechat.png").scale(0.3).next_to(mouth_level, DOWN)
+        skype = ImageMobject("./resource/skype.png").scale(0.3).next_to(wechat, RIGHT*4)
+        tiktok = ImageMobject("./resource/tiktok.png").scale(0.3).next_to(wechat, LEFT*4)
+
+        self.play(FadeIn(mouth_level))
+        self.play(FadeIn(tiktok))
+        self.play(FadeIn(wechat))
+        self.play(FadeIn(skype))
+
+        self.wait()
+        self.remove(tiktok, wechat, skype, mouth_level)
 
         tcpip = self.create_stack(5, height=1)
 
@@ -90,7 +103,6 @@ class APacket(Scene):
         self.play(FadeIn(glevel))
 
         customize_proto = VGroup(glevel, tcpip, proto_name)
-        self.play(FadeOut(customize_proto))
 
         self.wait()
 
@@ -98,6 +110,7 @@ class PacketMovement(Scene):
     
     
     def construct(self):
+        self.camera.background_color = BACKGROUND
         # 设置车厢的尺寸
         carriage_height = 2.0
         carriage_width = 4.0
@@ -195,6 +208,7 @@ class PacketDetail(Scene):
         return stack
 
     def construct(self):
+        self.camera.background_color = BACKGROUND
         
         # 将货车添加到场景中
         truck = self.create_packet()
@@ -288,9 +302,23 @@ class PacketDetail(Scene):
         self.play(tcpdstport.animate.become(ttcpdstport))
 
         appmsg = Text("GET /index.html HTTP/1.0", color=OBJ_C).scale(0.2).move_to(tcpip[1])
-        self.play(lapp.copy().animate.become(appmsg))
+        self.play(lapp.animate.become(appmsg))
 
         timeout = Text("TIMEOUT: 60s", color=WORD_B).scale(0.4).move_to(tcpip[0])
         self.play(FadeIn(timeout))
 
         self.wait()
+
+class Comm(Scene):
+    def construct(self):
+        wechat = ImageMobject("./resource/wechat.png").scale(0.3)
+        skype = ImageMobject("./resource/skype.png").scale(0.3).next_to(wechat, RIGHT*4)
+        tiktok = ImageMobject("./resource/tiktok.png").scale(0.3).next_to(wechat, LEFT*4)
+
+        self.play(FadeIn(tiktok))
+        self.play(FadeIn(wechat))
+        self.play(FadeIn(skype))
+        self.wait()
+
+
+
