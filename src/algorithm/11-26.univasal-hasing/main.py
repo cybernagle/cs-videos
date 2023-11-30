@@ -291,6 +291,10 @@ class UnivasalHash(Scene):
         self.wait()
 
 class WhyOneOverM(Scene):
+
+    def __init__(self):
+        super().__init__()
+        self.camera.background_color = BACKGROUND
     def construct(self):
         positions5 = [[(i+2, j+2) for i , row in enumerate(matrix5) for j, val in enumerate(row) if val==num] for num in range(1,5)]
         matrix6 = [[(x*y)%6 for x in range(0, 6)] for y in range(0, 6)]
@@ -309,12 +313,6 @@ class WhyOneOverM(Scene):
             #background_rectangle_color=BLUE,
         ).scale(0.5)
 
-        ebye = IntegerTable(
-            [[(x*y)%5 for x in range(0, 11)] for y in range(0, 11)],
-            row_labels=[ Text(str(i)) for i in range(0, 11)],
-            col_labels=[ Text(str(i)) for i in range(0, 11)],
-            include_outer_lines=True,
-        ).scale(0.4)
 
         # 换另外一个角度来看,
         # 如果我们把一个质数5范围内所有的数都 按照 (key * a)mod b 的方法 hash 一遍, 我们得出下面的表格.
@@ -339,9 +337,21 @@ class WhyOneOverM(Scene):
             index += 1
 
 
+        surrand_columnfive = SurroundingRectangle(
+            fivebyfive.get_columns()[2],
+            color=RED,
+            buff=0.05
+        )
+        
         self.play(Wiggle(fivebyfive))
+        self.play(FadeIn(surrand_columnfive))
         self.wait(2)
-        self.play(FadeOut(fivebyfive))
+        self.play(
+            FadeOut(fivebyfive),
+            FadeOut(surrand_columnfive)
+        )
+
+        # 我们再来看一个反例, prime number 为 6 的情况
         self.play(FadeIn(sixbysix))
 
         index = 0
@@ -351,7 +361,73 @@ class WhyOneOverM(Scene):
                 sixbysix.add_highlighted_cell(j, color=color)
             index += 1
 
-        self.play(Wiggle(sixbysix))
+        
+        gsurranding = VGroup()
+        for i in [2,4,6]:
+            temp = SurroundingRectangle(
+                sixbysix.get_rows()[i],
+                color=RED,
+                buff=0.05
+            )
+            key = Text("k={}".format(str(i-1)), color=RED).scale(0.8).next_to(temp, LEFT, buff=1)
+            gsurranding.add(temp, key)
+
+        surrand_column = SurroundingRectangle(
+            sixbysix.get_columns()[4],
+            color=RED,
+            buff=0.05
+        )
+        # 当我们的 a 为 3 的时候
+        a1 = Text("a=3", color=WORD_A).scale(0.8).next_to(surrand_column,UP)
+        self.play(
+            FadeIn(surrand_column),
+            FadeIn(a1)
+        )
+        self.wait()
+        # 可以看到 key = 1, 3, 5 的时候, hash 的结果都是 3 
+        self.play(
+            FadeIn(gsurranding)
+        )
+        self.wait()
+        self.play(
+            FadeOut(gsurranding),
+            FadeOut(surrand_column),
+            FadeOut(a1)
+        )
+        self.wait()
+
+        gsurrandingsix = VGroup()
+        for i in [2,5]:
+            temp = SurroundingRectangle(
+                sixbysix.get_rows()[i],
+                color=RED,
+                buff=0.05
+            )
+            key = Text("k={}".format(str(i-1)), color=RED).scale(0.8).next_to(temp, LEFT, buff=1)
+            gsurrandingsix.add(temp,key)
+        surrand_columnsix = SurroundingRectangle(
+            sixbysix.get_columns()[3],
+            color=RED,
+            buff=0.05
+        )
+        a2 = Text("a=2", color=WORD_A).scale(0.8).next_to(surrand_columnsix, UP)
+        self.play(
+            FadeIn(surrand_columnsix),
+            FadeIn(a2)
+        )
+        self.wait()
+        self.play(
+            FadeIn(gsurrandingsix)
+        )
+        self.wait()
+        self.play(
+            FadeOut(gsurrandingsix),
+            FadeOut(surrand_columnsix),
+            FadeOut(a2)
+        )
+
+        self.wait()
+
         self.play(FadeOut(sixbysix))
 
         self.wait()
@@ -439,19 +515,47 @@ class WhyOneOverM(Scene):
         self.play(FadeIn(ku))
         # 那么与 ku mod n 的情况下, 能够与 ku 产生碰撞的就是: ku + n , ku + 2n , ku -n ...
         self.play(Indicate(pformular0))
+        poverm = VGroup()
         for i in range(len(pkeys)):
             self.play(FadeIn(pkeys[i]), run_time=0.3)
             index = "u + {index} \cdot m".format(index=i+1)
-            text = MathTex(index).scale(0.3).next_to(pkeys[i], LEFT)
+            text = MathTex(index).scale(0.5).next_to(pkeys[i], LEFT)
+            poverm.add(text)
             self.play(FadeIn(text),run_time=0.3)
 
+        surrand_poverm = SurroundingRectangle(
+            poverm,
+            color=RED,
+            buff=0.05
+        )
 
+        fpoverm = MathTex("p/m -1").scale(0.5).next_to(surrand_poverm, LEFT).shift(UP)
+        self.play(FadeIn(surrand_poverm))
+        self.play(FadeIn(fpoverm))
 
+        # generate a line with thin stroke
 
-        # 那么这种情况下, 就会发生
-        # 0,1,2..n, ...2n,...3n,...4n
-        # 我们来看一张图
-        # 11*11 matrix
+        over = Line(start=fpoverm.get_left(), end=fpoverm.get_right(),).set_stroke(width=1).next_to(fpoverm, DOWN, buff=0)
+        fp = MathTex("p-1").scale(0.5).next_to(over, DOWN, buff=0)
+
+        self.play(
+            FadeIn(over),
+            FadeIn(fp)
+        )
+
+        fpoverm2 = MathTex("\\frac{(p-1)/m}{p-1}").scale(0.5).next_to(fp, DOWN, buff=0.5)
+        self.play(FadeIn(fpoverm2))
+
+        fpoverm3 = MathTex("\\frac{1}{m}").scale(0.5).next_to(fpoverm2, DOWN, buff=0.5)
+        self.play(FadeIn(fpoverm3))
+
+        self.mobjects=[fpoverm3]
+        self.foreground_mobjects=[fpoverm3]
+
+        self.play(
+            fpoverm3.animate.scale(5).move_to(ORIGIN)
+        )
+        self.remove(fpoverm3)
         
         # 产生碰撞的数量就会是: p/m - 1
         # 所以发生碰撞的概率我们可以表示为
@@ -460,18 +564,45 @@ class WhyOneOverM(Scene):
         # p/m 
         # 我们接下来要证明的是: ((a*k+b) mod p) mod m 
         # prob(h(a,b)(x1) == h(a,b)(x2)) <= ([p/m] - 1) / (p-1) <= ((p-1)/m) / (p-1) = 1/m
-        """
-        self.add(ebye)
-        ebye.set_opacity(0)
-        for row in ebye.get_rows():
-            for cell in row:
-                cell.set_opacity(1)
-                self.play(FadeIn(cell), run_time=0.5)
-        """
-        
+
+        # 接下来我们看一个实际的例子
+        p11 = MathTex("p = 11").scale(0.8).to_edge(UP).shift(LEFT)
+        m4 = MathTex("m = 4").scale(0.8).next_to(p11, RIGHT)
+        # 假设我们选取的质数是 11
+        self.play(FadeIn(p11))
+        # 然后我们的哈希表的大小 m 是 4
+        self.play(FadeIn(m4))
+        # 那么, 我们的碰撞情况会是如何呢?
+        # 让我们看看 
+        # 11*11 matrix
+       
         #self.play(ApplyWave(ebye))
 
         #self.play(FadeIn(ebye))
         #self.play(FadeOut(ebye))
         # 最后, prime number 以及 hasing funcion 如何证明说可以让碰撞的几率变成 1/m
         self.wait()
+
+class Ebye(Scene):
+    def construct(self):
+        ebye = IntegerTable(
+            [[(x)%4 for x in range(0, 11)] for y in range(0, 11)],
+            row_labels=[ Text(str(i)) for i in range(0, 11)],
+            col_labels=[ Text(str(i)) for i in range(0, 11)],
+            include_outer_lines=True,
+        ).scale(0.4)
+
+        self.add(ebye)
+        # 当 p = 11 的时候, 最多 121 个结果, 需要存放到容量为4的hash表当中.
+        # 那么, 这会产生多少冲突呢? 
+        for row in ebye.get_rows()[1:]:
+            for cell in row[1:]:
+                cell.set_opacity(0)
+
+        for row in ebye.get_rows()[1:]:
+            for cell in row[1:]:
+                #cell.set_opacity(1)
+                self.play(FadeIn(cell), run_time=0.5)
+ 
+                #ebye.add_highlighted_cell(j, color=color)
+
