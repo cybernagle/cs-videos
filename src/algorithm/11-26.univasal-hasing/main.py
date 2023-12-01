@@ -291,10 +291,6 @@ class UnivasalHash(Scene):
         self.wait()
 
 class WhyOneOverM(Scene):
-
-    def __init__(self):
-        super().__init__()
-        self.camera.background_color = BACKGROUND
     def construct(self):
         positions5 = [[(i+2, j+2) for i , row in enumerate(matrix5) for j, val in enumerate(row) if val==num] for num in range(1,5)]
         matrix6 = [[(x*y)%6 for x in range(0, 6)] for y in range(0, 6)]
@@ -503,7 +499,7 @@ class WhyOneOverM(Scene):
         self.wait()
         # 那么, 什么情况下会发生碰撞呢?碰撞的概率会有多少呢?
         self.play(FadeOut(ptom2), FadeOut(pkey2))
-        ku = MathTex("u").scale(0.3).next_to(pkey1, LEFT)
+        ku = MathTex("u").scale(0.5).next_to(pkey1, LEFT)
 
         pkeys = VGroup()
         factor = 1
