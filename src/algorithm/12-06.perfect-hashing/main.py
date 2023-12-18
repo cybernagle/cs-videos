@@ -5,6 +5,8 @@ from manim_voiceover.services.azure import AzureService
 from manim_voiceover.services.gtts import GTTSService
 from manim_voiceover.services.pyttsx3 import PyTTSX3Service
 
+import srt
+
 BACKGROUND="#2B3A42"
 
 WORD_A="#00CED1"
@@ -84,7 +86,7 @@ class PerfectHashing(VoiceoverScene):
         self.set_speech_service(
             AzureService(
                 #voice="en-US-AriaNeural",
-                voice="zh-CN-XiaoxiaoNeural",
+                voice="zh-CN-XiaoshuangNeural",
                 style="newscast-casual",
             )
         )
@@ -107,12 +109,14 @@ class PerfectHashing(VoiceoverScene):
 
         kids.arrange_in_grid(buff=0.5)
         with self.voiceover(text="问你一个问题, 假设你们班级现在有 23<bookmark mark='A'/> 个人，") as tracker:
+            self.add_subcaption("问你一个问题,假设你们班级现在有 23 个人")
             self.wait_until_bookmark("A")
             self.add(kids)
 
         birthday = VGroup()
 
         with self.voiceover(text="假设每个人的生日是<bookmark mark='A'/>随机的") as tracker:
+            self.add_subcaption("假设每个人的生日是随机的")
             for i in enumerate(birthdays):
                 text = Text(i[1]).scale(0.4).next_to(kids[i[0]], UP, buff=0.1)
                 if i[0] < 5:
@@ -123,33 +127,37 @@ class PerfectHashing(VoiceoverScene):
             self.add(birthday)
 
         with self.voiceover(text="那么有两个人生日一样的<bookmark mark='A'/>可能性是多少呢？") as tracker:
+            self.add_subcaption("那么有两个人生日一样的可能性是多少呢？")
             self.wait_until_bookmark("A")
             self.play(
                 birthday[1].animate.set_fill(RED),
                 birthday[13].animate.set_fill(RED),
             )
-        self.play(
-            Indicate(birthday[1]),
-            Indicate(birthday[13]),
-        )
+            self.play(
+                Indicate(birthday[1]),
+                Indicate(birthday[13]),
+            )
 
         guess1 = Text("10%").scale(2).next_to(kids, RIGHT, buff=1).shift(UP)
         guess2 = Text("23%").scale(2).next_to(guess1, DOWN, buff=0.2)
         guess3 = Text("50%").scale(2).next_to(guess2, DOWN, buff=0.2)
 
         # 是 18%
-        with self.voiceover(text="是 18%") as tracker:
+        with self.voiceover(text="是 10%") as tracker:
+            self.add_subcaption("是 10%")
             self.play(
                 FadeIn(guess1)
             )
         # 23%
         with self.voiceover(text="23%") as tracker:
+            self.add_subcaption("23%")
             self.play(
                 FadeIn(guess2)
             )
 
         # 还是 50%?
         with self.voiceover(text="还是 50%?") as tracker:
+            self.add_subcaption("还是 50%?")
             self.play(
                 FadeIn(guess3)
             )
@@ -163,61 +171,77 @@ class PerfectHashing(VoiceoverScene):
         # 答案可能超乎你的想象, 50.7%
         with self.voiceover(text="答案可能超乎你的想象, <bookmark mark='A'/>50.7%") as tracker:
             self.clear()
+            self.add_subcaption("答案可能超乎你的想象")
             self.play(
                 FadeIn(fifty0)
             )
             self.wait_until_bookmark("A")
-
+            self.add_subcaption("50.7%")
             self.play(Create(fifty))
         # 而当人数增加到 70 个人的时候, 这个数字就会变成 99.9%
         with self.voiceover(text="而当人数增加到 70 个人<bookmark mark='A'/>的时候, 这个数字就会变成 99.9%") as tracker:
+            self.add_subcaption("而当人数增加到 70 个人的时候")
             self.wait_until_bookmark("A")
+            self.add_subcaption("这个数字就会变成 99.9%")
             self.play(Create(ninety_nine))
 
         # 换句话说, 如果你们的班级有 70 人的时候,你们班级里 99.9% 会有两个人生日相同
         # 〉 请注意, 这个和 70 个人的时候, 一定有一个人和你的生日相同不一样.
         with self.voiceover(text="换句话说, 如果你们的班级有 70 人的时候,你们班级里<bookmark mark='A'/> 99.9% 会有两个人生日相同") as tracker:
+            self.add_subcaption("换句话说, 如果你们的班级有 70 人的时候")
             self.wait_until_bookmark("A")
             self.play(FadeOut(gfifty))
+            self.add_subcaption("你们班级里 99.9% 会有两个人生日相同")
             self.play(ninety_nine.animate.move_to(ORIGIN))
 
     ### 形式化证明 ###
         self.clear()
         # 为什么会这样呢？我们来看看这个问题的发现过程
         with self.voiceover(text="为什么会这样呢？我们来看看这个问题的发现过程") as tracker:
+            self.add_subcaption("为什么会这样呢？我们来看看这个问题的发现过程")
             self.add(kids)
         prob = MathTex(r"p = \frac{1}{365}").next_to(kids, RIGHT, buff=1).align_on_border(UP)
         notprob = MathTex(r"p = \frac{364}{365}").next_to(kids, RIGHT, buff=1).align_on_border(UP)
 
         # 首先我们来看看只有两个人的情况
         with self.voiceover(text="首先我们来看看只有两个人的情况") as tracker:
+            self.add_subcaption("首先我们来看看只有两个人的情况")
             self.play(FadeIn(birthday[0:2]))
         # 两个人的生日相同的概率是 1分之365, 因为两个人同一天生日意味着只能是 365 中的一天. 
-        with self.voiceover(text="两个人的生日相同的概率是<bookmark mark='A'/> 1分之365, 因为两个人同一天生日意味着只能是 365 中的一天.") as tracker:
+        with self.voiceover(text="两个人的生日相同的概率是<bookmark mark='A'/> 365分之1, 因为两个人同一天生日意味着只能是 365 中的一天.") as tracker:
+            self.add_subcaption("两个人的生日相同的概率是 1/365,")
             self.wait_until_bookmark('A')
+            self.add_subcaption("因为两个人同一天生日意味着只能是 365 中的一天.")
             self.play(FadeIn(prob))
-        # 那么也就是说两个人的生日不同的概率是 364分之365, 
-        with self.voiceover(text="那么也就是说两个人的生日不同的概率是<bookmark mark='A'/> 364分之365,") as tracker:
+        # 那么也就是说两个人的生日不同的概率是 365分之364, 
+        with self.voiceover(text="那么也就是说两个人的生日不同的概率是<bookmark mark='A'/> 365分之364,") as tracker:
+            self.add_subcaption("那么也就是说两个人的生日不同的概率是")
             self.wait_until_bookmark('A')
+            self.add_subcaption("364/365")
             self.play(prob.animate.become(notprob))
 
-        # 当达到 3 个人的时候, 就是 364分之365 乘以 363分之365
+        # 当达到 3 个人的时候, 就是 365分之364 乘以 365分之363
         three_notprob = MathTex(r"\cdot \frac{363}{365}").next_to(notprob, DOWN, buff=0.3).shift(RIGHT*0.4)
-        with self.voiceover(text="当达到<bookmark mark='A'/> 3 个人的时候, 就是<bookmark mark='B'/> 364分之365 乘以 363分之365") as tracker:
+        with self.voiceover(text="当达到<bookmark mark='A'/> 3 个人的时候, 就是<bookmark mark='B'/> 365分之364 乘以 365分之363") as tracker:
+            self.add_subcaption("当达到 3 个人的时候")
             self.wait_until_bookmark('A')
+            self.add_subcaption("就是 364/365 * 363/365")
             self.play(FadeIn(birthday[2]))
             self.wait_until_bookmark('B')
             self.play(notprob.animate.become(three_notprob))
 
         # 四个人, 在乘以 362分之365
         four_notprob = MathTex(r"\cdot \frac{362}{365}").next_to(three_notprob, DOWN, buff=0.3)
-        with self.voiceover(text="四个人, 再乘以<bookmark mark='A'/> 362分之365") as tracker:
+        with self.voiceover(text="四个人, 再乘以<bookmark mark='A'/> 365分之362") as tracker:
             self.wait_until_bookmark('A')
+            self.add_subcaption("四个人")
             self.play(FadeIn(birthday[3]))
+            self.add_subcaption("再乘以 362/365")
             self.play(three_notprob.animate.become(four_notprob))
 
         # 而 23 个人, 则是 361/365 * 360/365 * 359/365 * ... * 343/365
         with self.voiceover(text="而 23 <bookmark mark='A'/>个人,相乘以后") as tracker:
+            self.add_subcaption("而 23 个人,相乘以后")
             self.wait_until_bookmark('A')
             self.play(FadeIn(birthday[4:]))
 
@@ -227,6 +251,7 @@ class PerfectHashing(VoiceoverScene):
         rnotprob = MathTex("= 50.7%").set_color(OBJ_A).next_to(rprob_2, DOWN, buff=0.3)
         # 它的结果是, 是 49.3%
         with self.voiceover(text="它的结果是, 是<bookmark mark='A'/> 49.3%") as tracker:
+            self.add_subcaption("它的结果是, 是 49.3%")
             self.wait_until_bookmark('A')
             self.play(
                 FadeIn(rprob),
@@ -238,7 +263,9 @@ class PerfectHashing(VoiceoverScene):
         # 那么至少有两个人生日相同的概率是多少呢？ 
         # 1 减去 49.3% 也就是 50.7%
         with self.voiceover(text="那么至少有两个人生日相同的概率是多少呢？<bookmark mark='A'/> 1 减去 49.3% 也就是 50.7%") as tracker:
+            self.add_subcaption("那么至少有两个人生日相同的概率是多少呢？")
             self.wait_until_bookmark('A')
+            self.add_subcaption("1 减去 49.3% 也就是 50.7%")
             self.play(
                 rprob_3.animate.become(rnotprob),
                 FadeIn(minus1),
@@ -271,15 +298,19 @@ class PerfectHashing(VoiceoverScene):
 
         # 这就是著名的生日悖论
         with self.voiceover(text="这就是著名的生日悖论") as tracker:
+            self.add_subcaption("这就是著名的生日悖论")
             self.play(Create(tbirthday))
         # 而我们上一次提到的通用哈希, 
         with self.voiceover(text="通用哈希") as tracker:
+            self.add_subcaption("通用哈希")
             self.play(Create(tunivasal_desc))
         # 在拥有了生日悖论的理论基础后, 
         with self.voiceover(text="在拥有了生日悖论的理论基础后,") as tracker:
+            self.add_subcaption("在拥有了生日悖论的理论基础后,")
             self.play(Create(plus))
         # 就有了这个叫做完美哈希的算法
         with self.voiceover(text="就有了这个叫做<bookmark mark='A'/>完美哈希的算法") as tracker:
+            self.add_subcaption("就有了这个叫做完美哈希的算法")
             self.play(Create(equal))
             self.wait_until_bookmark('A')
             self.play(Create(tperfect_hash))
@@ -294,16 +325,20 @@ class PerfectHashing(VoiceoverScene):
 
         # 完美哈希, 顾名思义, 就是完美的, 哈希算法, 它的特点是:
         with self.voiceover(text="完美哈希, 顾名思义, 就是完美的,哈希算法, 它的特点是:") as tracker:
+            self.add_subcaption("完美哈希, 顾名思义, 就是完美的,哈希算法, 它的特点是:")
             self.play(FadeIn(bperfect_desc))
 
         # 1. 碰撞概率无限趋近于0
         with self.voiceover(text="碰撞概率无限趋近于0") as tracker:
+            self.add_subcaption("碰撞概率无限趋近于0")
             self.play(FadeIn(tperfect_hash0))
         # 2. 空间复杂度为 O(n)
         with self.voiceover(text="空间复杂度为 O n") as tracker:
+            self.add_subcaption("空间复杂度为 O(n)")
             self.play(FadeIn(tperfect_hash1))
         # 3. 时间复杂度为 O(1)
         with self.voiceover(text="时间复杂度为 O 1") as tracker:
+            self.add_subcaption("时间复杂度为 O(1)")
             self.play(FadeIn(tperfect_hash2))
 
             self.play(FadeOut(perfect_hash_desc),
@@ -313,22 +348,29 @@ class PerfectHashing(VoiceoverScene):
         tbirthday_desc = Text("生日悖论: 在一个班级, 有 23 个人, 他们中有两个人 365 天的同一天的生日的概率是50.7%").scale(0.5)
         tbirthday_desc2 = Text("n 个(人)元素, 映射到 约等于 n 平方的(生日)位置当中, 存!在!碰!撞!的概率约为 50%").scale(0.5)
 
-        with self.voiceover(text="我们再重新看生日悖论.可以看到它和我们的哈希算法也是有共通之处的.看看生日悖论的描述<bookmark mark='A'/>,有23个人,他们中有两个人同一天的生日的概率是50.7%"):
-            #self.wait_until_bookmark('A')
+        
+        with self.voiceover(text="我们再重新看生日悖论.可以看到它和我们的哈希算法也是有共通之处的.<bookmark mark='B'/>看看生日悖论的描述<bookmark mark='A'/>,有23个人,他们中有两个人同一天的生日的概率是50.7%"):
+            self.add_subcaption("我们再重新看生日悖论.可以看到它和我们的哈希算法也是有共通之处的.")
+            self.wait_until_bookmark('B')
+            self.add_subcaption("看看生日悖论的描述, 有23个人,他们中有两个人同一天的生日的概率是50.7%")
             self.play(Create(tbirthday_desc))
         # 也就是说, 23 个人,它们被放在 365 个位置当中, 有两个人放在同一个位置的概率是50.7%
         with self.voiceover(text="也就是说, 23 个人,它们被放在 365 个位置当中, 有两个人放在同一个位置的概率是50.7%"):
+            self.add_subcaption("也就是说, 23 个人,它们被放在 365 个位置当中, 有两个人放在同一个位置的概率是50%")
             self.play(tbirthday_desc.animate.shift(UP*1.5))
         ttot = Arrow(start=tbirthday_desc.get_bottom(), end=tbirthday_desc2.get_top(), buff=0.1)
         # 再抽象一点, n 个元素, 映射到 约等于 n 平方的位置当中, 存在碰撞的概率为 50.7%
         with self.voiceover(text="再抽象一点, n 个元素, 映射到 约等于 n 平方的位置当中, 存在碰撞的概率为 50.7%"):
+            self.add_subcaption("再抽象一点, n 个元素, 映射到 约等于 n 平方的位置当中, 存在碰撞的概率为 50%")
             self.play(GrowArrow(ttot))
             self.play(Create(tbirthday_desc2))
 
         # 而即然是完美哈希,  一半的存在碰撞的可能性对于我们来说, 显然是不够的. 
         # 我们要做到更优秀, 让它无限接近于零. 
         with self.voiceover(text="而即然是完美哈希,  一半的存在碰撞的可能性对于我们来说, 显然是不够的. 我们要做到更优秀, 让它无限接近于<bookmark mark='A'/>零."):
+            self.add_subcaption("而即然是完美哈希,  一半的存在碰撞的可能性对于我们来说, 显然是不够的.")
             self.wait_until_bookmark('A')
+            self.add_subcaption("我们要做到更优秀, 让它无限接近于零.")
             self.play(
                 FadeOut(ttot),
                 FadeOut(tbirthday_desc),
@@ -337,13 +379,16 @@ class PerfectHashing(VoiceoverScene):
 
         # 所以接下来, 我们来看, 完美哈希的具体实现.
         with self.voiceover(text="所以接下来, 我们来看, 完美哈希的具体实现."):
+            self.add_subcaption("所以接下来, 我们来看, 完美哈希的具体实现.")
             self.play(FadeIn(ghash_u_to_m))
 
         #self.play(FadeOut(gworld_to_class), FadeOut(tbirthday_desc))
         # 我们有 U 个元素, 我们要把这 U 个元素映射到一个数组 m 当中. 
         # 而这里, 我们的 m 个位置, 需要和 U 的大小相同.
         with self.voiceover(text="我们有 U 个元素, 我们要把这 U 个元素映射到一个数组 m 当中. 而这里, 我们的 m 个位置, 需要<bookmark mark='A'/>和 U 的大小相同."):
+            self.add_subcaption("我们有 U 个元素, 我们要把这 U 个元素映射到一个数组 m 当中.")
             self.wait_until_bookmark('A')
+            self.add_subcaption("而这里, 我们的 m 个位置, 需要和 U 的大小相同.")
             self.play(m.animate.become(perfect_m))
             self.play(hash_u_to_m.animate.become(hash_u_to_perfectm))
 
@@ -355,6 +400,7 @@ class PerfectHashing(VoiceoverScene):
 
         # 在我们的 m 当中, 最终会有 U 个桶.
         with self.voiceover(text="在我们的 m 当中, 最终会有 U <bookmark mark='A'/>个桶."):
+            self.add_subcaption("在我们的 m 当中, 最终会有 U 个桶.")
             self.wait_until_bookmark('A')
             self.play(FadeIn(ukeys))
 
@@ -381,6 +427,7 @@ class PerfectHashing(VoiceoverScene):
 
         # 每个桶, 均指向一个新的哈希表
         with self.voiceover(text="每个桶, 均指向一个新的哈希表"):
+            self.add_subcaption("每个桶, 均指向一个新的哈希表")
             self.play(FadeIn(l2_table[0]))
             self.play(FadeIn(l2_table[1]))
             self.play(FadeIn(l2_table[2]))
@@ -388,7 +435,9 @@ class PerfectHashing(VoiceoverScene):
         # 这样的情况下, 每个二极哈希表的大小都不会相同.
         # 有的表可能会为0 
         with self.voiceover(text="每个二极哈希表的大小都不尽相同. 有的表<bookmark mark='A'/>可能会为0"):
+            self.add_subcaption("每个二极哈希表的大小都不尽相同.")
             self.wait_until_bookmark('A')
+            self.add_subcaption("有的表可能会为0")
             self.play(Indicate(l2_table[2]))
 
         bl1 = Brace(l2_table[0][0], RIGHT)
@@ -402,12 +451,13 @@ class PerfectHashing(VoiceoverScene):
 
         # 当我们在创建这个哈希表的时候, 有三个细节需要注意: 
         # 细节一就是, 我们的二极哈希表的大小, 不是 l1, l2, l3 本身的大小. 而是它们的平方. 为什么? 理论依据就是, 生日悖论.
-        with self.voiceover(text="当我们在创建这个哈希表的时候, 有三个细节需要注意: 细节一就是, 我们的二极哈希表的大小, 不是其本身的大小. 而是它们大小l1,l2,l3的平方<bookmark mark='A'/>. 为什么? 理论依据就是, 生日悖论."):
+        with self.voiceover(text="当我们在创建这个哈希表的时候, 有三个细节需要注意: 细节一就是, 我们的二极哈希表的大小, 不是其本身的大小. 而是它们大小l1 ,l2 ,l3 的平方<bookmark mark='A'/>. 为什么? 理论依据就是, 生日悖论."):
+            self.add_subcaption("当我们在创建这个哈希表的时候, 有三个细节需要注意: 细节一就是, 我们的二极哈希表的大小, 不是其本身的大小. 而是它们大小l1,l2,l3的平方. ")
             self.wait_until_bookmark('A')
+            self.add_subcaption("为什么? 理论依据就是, 生日悖论.")
             self.play(FadeIn(bl1), FadeIn(btl1))
             self.play(FadeIn(bl2), FadeIn(btl2))
             self.play(FadeIn(bl3), FadeIn(btl3))
-
 
         f1 = MathTex("((a_1 \cdot k + b_1)\mod p) \mod l1").scale(0.4).next_to(btl1, RIGHT, buff=0.1)
         f1_prime = MathTex("((a_1` \cdot k + b_1`)\mod p) \mod l1`").scale(0.4).next_to(f1, DOWN, buff=0.1)
@@ -416,14 +466,18 @@ class PerfectHashing(VoiceoverScene):
 
         # 细节二, 每个二极表我们都将重新从通用哈希中选择哈希函数, 这可以保证每个位置的碰撞概率一致, 且为 1/l1.
         with self.voiceover(text="细节二, 每个二极表我们都将重新从通用哈希中选择哈希函数<bookmark mark='A'/>, 这可以保证每个位置的碰撞概率一致, 为 L1分之一."):
+            self.add_subcaption("细节二, 每个二极表我们都将重新从通用哈希中选择哈希函数, ")
             self.wait_until_bookmark('A')
+            self.add_subcaption("这可以保证每个位置的碰撞概率一致, 为 1/l1^2.")
             self.play(FadeIn(f1))
             self.play(FadeIn(f2))
             self.play(FadeIn(f3))
 
         # 细节三, 当我们从通用哈希函数选取的函数发生了碰撞,我们将重新从通用哈希函数中随机再选择一个.
         with self.voiceover(text="细节三, 当我们从通用哈希函数选取的函数发生了碰撞,我们将重新从通用哈希函数中随机再选择<bookmark mark='A'/>一个."):
+            self.add_subcaption("细节三, 当我们从通用哈希函数选取的函数发生了碰撞")
             self.wait_until_bookmark('A')
+            self.add_subcaption("我们将重新从通用哈希函数中随机再选择一个.")
             self.play(FadeIn(f1_prime))
 
         self.clear()
@@ -431,15 +485,18 @@ class PerfectHashing(VoiceoverScene):
         # 这个时候, 有人就说了, 你说构成就构成? 怎么证明 呢?
         # 我们来证明看一下为什么我们可以做到碰撞概率无限趋近于0
         with self.voiceover(text="这个时候, 有人就说了, 你说构成就构成? 怎么证明呢? 我们来证明看一下为什么我们可以做到碰撞概率无限趋近于0<bookmark mark='A'/>"):
+            self.add_subcaption("这个时候, 有人就说了, 你说构成就构成? 怎么证明呢?")
             self.play(FadeIn(perfect_hash_desc),
                       FadeIn(tperfect_hash))
             self.wait_until_bookmark('A')
+            self.add_subcaption("我们来证明看一下为什么我们可以做到碰撞概率无限趋近于0")
             self.play(FadeOut(perfect_hash_desc),
                       FadeOut(tperfect_hash))
 
         ### 形式化证明 ###
         # 我们拿 table2 来看看效果.
         with self.voiceover(text="我们拿 table2 L2 来看看效果."):
+            self.add_subcaption("我们拿 table2 L2 来看看效果.")
             self.play(
                 l2_table[1][0].animate.scale(2).align_on_border(LEFT),
             )
@@ -453,17 +510,22 @@ class PerfectHashing(VoiceoverScene):
         # 首先, 我们选择的哈希函数是通用哈希; 
         # 那么我们在图中的值的碰撞概率可以表示为: Hash(l21) 等于 a2 乘以 l21 + b2 mod p 再 mod l2平方的大小
         with self.voiceover(text="首先, 我们选择的哈希函数是通用哈希; 那么我们在图中<bookmark mark='A'/>的值的碰撞概率可以表示为: <bookmark mark='B'/>Hash(l2 1) 等于 a2 乘以 l2 1 + b2 mod p 再 mod l2平方的大小"):
+            self.add_subcaption("首先, 我们选择的哈希函数是通用哈希;")
             self.wait_until_bookmark('A')
+            self.add_subcaption("那么我们在图中的值的碰撞概率可以表示为: ")
             self.play(
                 l2_table[1][0].get_rows()[1][0].animate.set_opacity(1)
             )
             hash_l2_1 = MathTex(r"(H(l2_1) = ((a_2 \cdot l2_1 + b_2)\mod p) \mod l2^2)").scale(0.4).next_to(l2_table[1][0].get_rows()[1][0], RIGHT, buff=1.5)
             self.wait_until_bookmark('B')
+            self.add_subcaption("Hash(l2_1) = ((a2 * l2_1 + b2) mod p )mod l2^2")
             self.play(Create(hash_l2_1))
 
         # 另外一个值<bookmark mark='A'/>的可以表示为 Hash(l22) <bookmark mark='B'/>等于 a2 乘以 l22 + b2 mod p 再 mod l2平方 的大小
         with self.voiceover(text="另外一个值<bookmark mark='A'/>的可以表示为 <bookmark mark='B'/>Hash(l2 2) 等于 a2 乘以 l2 2 + b2 mod p 再 mod l2平方的大小"):
+            self.add_subcaption("另外一个值的可以表示为")
             self.wait_until_bookmark('A')
+            self.add_subcaption("Hash(l2_2) = ((a2 * l2_2 + b2) mod p) mod l2^2")
             self.play(
                 l2_table[1][0].get_rows()[5][0].animate.set_opacity(1)
             )
@@ -473,6 +535,7 @@ class PerfectHashing(VoiceoverScene):
 
         # 这两个相等的概率是小于 l2 平方分之 1
         with self.voiceover(text="这两个相等<bookmark mark='A'/>的概率是小于等于<bookmark mark='B'/> l2 平方分之 1"):
+            self.add_subcaption("这两个相等的概率是小于等于 l2 平方分之 1")
             self.wait_until_bookmark('A')
             equal = MathTex(r"=", color=WHITE).scale(0.4).next_to(hash_l2_1, RIGHT, buff=0.2)
             self.play(FadeIn(equal))
@@ -498,6 +561,7 @@ class PerfectHashing(VoiceoverScene):
         picks = [(0, 1), (0,2), (0,3),(2,5), (3,4)]
         # 有了两者的碰撞概率之后, 我们从 L2 当中选取所有的可能性.
         with self.voiceover(text="有了两者的碰撞概率之后, 我们从 L2 当中选取所有的可能性."):
+            self.add_subcaption("有了两者的碰撞概率之后, 我们从 L2 当中选取所有的可能性.")
             for i in picks:
                 self.play(
                     Flash(l2_table[1][0].get_rows()[i[0]][0]),
@@ -511,23 +575,27 @@ class PerfectHashing(VoiceoverScene):
         equation2 = VGroup(pick_in_l2, times, prob_l2_2).next_to(hash_l2, DOWN, buff=0.5).shift(LEFT*2)
         # 那么它的就可以表示为从 n 当中选取 2 个元素.
         with self.voiceover(text="那么它的就可以表示为从 n 当中选取 2 个元素."):
+            self.add_subcaption("那么它的就可以表示为从 n 当中选取 2 个元素.")
             self.play(FadeIn(pick_in_l2))
         # 这个里面的每一对的碰撞概率是 l2 平方分之 1
         with self.voiceover(text="这个里面的每一对的碰撞概率是 l2 平方分之 1"):
+            self.add_subcaption("这个里面的每一对的碰撞概率是 l2 平方分之 1")
             self.play(FadeIn(prob_l2_2))
         # 所以我们将其相乘,就得到我们整个 l2 发生碰撞的概率
         with self.voiceover(text="所以我们将其相乘,就得到我们整个 l2 发生碰撞的概率"):
+            self.add_subcaption("所以我们将其相乘,就得到我们整个 l2 发生碰撞的概率")
             self.play(FadeIn(times))
 
         # equation3 , n pick 2 => ((n^2 - n)/2 )* (1/n^2)
         # 进一步简化
-        equation3 = MathTex(r"\Rightarrow \frac{l2^2(l2^2-n)}{2} \times \frac{1}{l2^2}", color=WHITE).next_to(equation2, RIGHT, buff=0.5)
+        equation3 = MathTex(r"\Rightarrow \frac{l2^2-n}{2} \times \frac{1}{l2^2}", color=WHITE).next_to(equation2, RIGHT, buff=0.5)
         # equation 4, ((n^2 -n)/n^2) * (1/2)
         equation4 = MathTex(r"\Rightarrow \frac{l2^2-n}{l2^2} \times \frac{1}{2}", color=WHITE).next_to(equation3, DOWN, buff=0.5).align_to(equation3, LEFT)
         # equation 5 1/2
         equation5 = MathTex(r"\Rightarrow \frac{1}{2}", color=WHITE).next_to(equation4, DOWN, buff=0.5).align_to(equation4, LEFT)
 
         with self.voiceover(text="进一步简化, 我们就得到了<bookmark mark='A'/>二分之一"):
+            self.add_subcaption("进一步简化, 我们就得到了1/2")
             self.play(FadeIn(equation3))
             self.play(FadeIn(equation4))
             self.wait_until_bookmark('A')
@@ -537,7 +605,9 @@ class PerfectHashing(VoiceoverScene):
         detail3 = Text("当我们从通用哈希函数选取的函数发生了碰撞,我们将重新从通用哈希函数中随机再选择一个").scale(0.5)
         # 当我们从通用哈希函数选取的函数发生了碰撞,我们将重新从通用哈希函数中随机再选择一个"
         with self.voiceover(text="还记得我们的细节三吗?<bookmark mark='A'/>当我们从通用哈希函数选取的函数发生了碰撞,我们将重新从通用哈希函数中随机再选择一个<bookmark mark='B'/>"):
+            self.add_subcaption("还记得我们的细节三吗?")
             self.wait_until_bookmark('A')
+            self.add_subcaption("当我们从通用哈希函数选取的函数发生了碰撞,我们将重新从通用哈希函数中随机再选择一个")
             self.play(Create(detail3))
             self.wait_until_bookmark('B')
             self.play(FadeOut(detail3))
@@ -559,10 +629,14 @@ class PerfectHashing(VoiceoverScene):
         #label = axes.get_graph_label(graph, label="y=\\frac{1}{2}^x")
         # 用 play 方法显示 Axes 和图像
         # 经过多次选择后, 我们可以得到以下的图像,可以看到, 我们选择达到大概 6-7 次的时候, 我们的碰撞概率, 就已经达到了 0.1% 以下了.
-        with self.voiceover(text="经过多次选择后, 我们可以得到<bookmark mark='A'/>以下的图像,可以看到, 我们选择达到大概 7 次的时候, 我们的碰撞概率, 就已经达到了 0.1% 以下了.也就是说,我们证明了, 我们的碰撞概率, 可以无限趋近于 0"):
+        with self.voiceover(text="经过多次选择后, 我们可以得到<bookmark mark='A'/>以下的图像,可以看到, 我们选择达到大概 7 次的时候, 我们的碰撞概率, 就已经达到了 0.1% 以下了.<bookmark mark='B'/>也就是说,我们证明了, 我们的碰撞概率, 可以无限趋近于 0"):
+            self.add_subcaption("经过多次选择后, 我们可以得到以下的图像,")
             self.play(FadeIn(axes))
             self.wait_until_bookmark('A')
+            self.add_subcaption("可以看到, 我们选择达到大概 7 次的时候, 我们的碰撞概率, 就已经达到了 0.1% 以下了.")
             self.play(Create(graph))#, Write(label), run_time=2)
+            self.wait_until_bookmark('B')
+            self.add_subcaption("也就是说,我们证明了, 我们的碰撞概率, 可以无限趋近于 0")
 
         self.clear()
 
