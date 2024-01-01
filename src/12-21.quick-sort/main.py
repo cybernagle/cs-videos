@@ -89,8 +89,9 @@ class QuickSort(VoiceoverScene):
         pivot.text.set_z_index(3)
         tpivot = Text("pivot").scale(0.3).next_to(pivot, UP)
         self.add(tpivot)
-        self.play(FadeOut(tpivot))
-        self.play(pivot.animate.next_to(position, UP*0.5))
+        with self.voiceover(text="中间数") as tracker:
+            self.play(FadeOut(tpivot))
+            self.play(pivot.animate.next_to(position, UP*0.5))
 
         pleft = position.copy() + LEFT + DOWN
         pright = position.copy() + RIGHT + DOWN
@@ -117,14 +118,17 @@ class QuickSort(VoiceoverScene):
         tlarger = Text("quick(larger)").scale(0.3).next_to(pivot, RIGHT)
         self.stack.add(tsmaller, tlarger)
 
-        self.add(tsmaller)
-        self.play(smaller.animate.arrange(buff=0.1).move_to(pleft))
 
-        self.add(tlarger)
-        if len(smaller) > 1:
-            self.play(larger.animate.arrange(buff=0.1).next_to(smaller, RIGHT , buff=1))
-        else:
-            self.play(larger.animate.arrange(buff=0.1).move_to(pright))
+        with self.voiceover(text="小的数.") as tracker:
+            self.add(tsmaller)
+            self.play(smaller.animate.arrange(buff=0.1).move_to(pleft))
+
+        with self.voiceover(text="大的数.") as tracker:
+            self.add(tlarger)
+            if len(smaller) > 1:
+                self.play(larger.animate.arrange(buff=0.1).next_to(smaller, RIGHT , buff=1))
+            else:
+                self.play(larger.animate.arrange(buff=0.1).move_to(pright))
 
         self.wait(0.5)
         ssmaller = self.quicksort(smaller, position=pleft)
@@ -138,6 +142,7 @@ class QuickSort(VoiceoverScene):
         return new
 
     def construct(self):
+        self.computer_voice()
         # generate 10 random numbers between 1-100 , and put them in Square
         data = [86,66,31,43,68,69,83,79,22,8] #[random.randint(1, 100) for i in range(10)]
         squares = VGroup()
@@ -146,44 +151,59 @@ class QuickSort(VoiceoverScene):
             squares.add(s)
         squares.arrange(RIGHT, buff=0.1).move_to(ORIGIN)
 
-        self.play(FadeIn(squares))
+        with self.voiceover(text="我是一台计算机,需要将以下n个数字进行从小到大排序.") as tracker:
+            self.play(FadeIn(squares))
+        with self.voiceover(text="首先,我将选择第一个数, 根据它来将所有的数分成两个部分.一部分数较之大,一部分较之小.重复这一步知道所有的数分开, 让我们开始吧.") as tracker:
+            self.wait()
+
         sorted = self.quicksort(squares, UP*2)
         position: Vector3 = np.array((-4.0, 3.3, 0.0))
         
+
         i = 0
-        for v in sorted:
-            self.play(v.animate.move_to(position+RIGHT*i))
-            i+=1
-        self.wait()
+        with self.voiceover(text="所有的数都分开后, 每一个函数都按照之前的顺序返回, 这样我们就得到了拍好了顺序的数字.") as tracker:
+            for v in sorted:
+                self.play(v.animate.move_to(position+RIGHT*i))
+                i+=1
+        
+        complexlgn = Line(start=UP*3+LEFT*5, end=DOWN*3+LEFT*5,color=RED).set_z_index(3)
+        tcomplexlgn = MathTex("\log n").scale(0.8).next_to(complexlgn, LEFT).set_z_index(3)
+        complexn = Line(start=DOWN * 3 + LEFT*5, end=DOWN * 3 + RIGHT*5, color=RED).set_z_index(3)
+        tcomplexn = MathTex("n").scale(0.8).next_to(complexn, DOWN).set_z_index(3)
 
-        lgn = Line(start=UL, end=DL, color=RED)
-        tlgn = MathTex("\log n").scale(0.3).next_to(lgn, LEFT)
-        n = Line(start=DL, end=DR, color=RED)
-        tn = Text("n").scale(0.3).next_to(n, DOWN)
-
-        self.play(FadeIn(lgn), FadeIn(tlgn), FadeIn(n), FadeIn(tn))
-        self.wait()
+        #self.play(GrowFromCenter(complexlgn), GrowFromCenter(tcomplexlgn), GrowFromCenter(complexn), GrowFromCenter(tcomplexn))
+        
+        with self.voiceover(text="这样, 我每一次都查看了所有的n个数字,因为我每一次都将数据分为2 ,所以我的高度是 log n,那么, 我一共要执行 n 乘以 log n 次.") as tracker:
+            self.add(complexlgn, tcomplexlgn, complexn, tcomplexn)
 
         self.clear()
 
+        with self.voiceover(text="那么这样做有问题吗? 让我们来看另外一个情况.") as tracker:
+            self.wait()
         # another situation
         data = [99, 98, 97, 96, 95, 94]
         badsituation = VGroup()
         for i in data:
             s = Element(number=i,side_length=0.5, color=OBJ_B, fill_opacity=1)
             badsituation.add(s)
-        badsituation.arrange(RIGHT, buff=0.1).move_to(ORIGIN)
-        self.play(FadeIn(badsituation))
+
+        with self.voiceover(text="这是另外一堆数字, 让我们仍然每次选择第一个数字将其分为两堆.开始吧!") as tracker:
+            badsituation.arrange(RIGHT, buff=0.1).move_to(ORIGIN)
+            self.play(FadeIn(badsituation))
         badsorted = self.quicksort(badsituation, UP*2)
         i = 0
-        for v in badsorted:
-            self.play(v.animate.move_to(position+RIGHT*i))
-            i+=1
+
+        with self.voiceover(text="像上次一样,我的每一个函数都按照之前的顺序返回并得到拍好顺序的数字.") as tracker:
+            for v in badsorted:
+                self.play(v.animate.move_to(position+RIGHT*i))
+                i+=1
         
-        lgbn = Line(start=UL, end=DL, color=RED)
-        tlgbn = MathTex("\log n").scale(0.3).next_to(lgbn, LEFT)
-        bn = Line(start=DL, end=DR, color=RED)
-        tbn = Text("n").scale(0.3).next_to(bn, DOWN)
-        self.play(FadeIn(lgbn), FadeIn(tlgbn), FadeIn(bn), FadeIn(tbn))
+        lgbn = Line(start=UP*3+LEFT*6, end=DOWN*3+LEFT*6, color=RED).set_z_index(3)
+        tlgbn = MathTex("n").scale(0.8).next_to(lgbn, LEFT).set_z_index(3)
+        bn = Line(start=DOWN * 3 + LEFT*6, end=DOWN * 3 + RIGHT*3, color=RED).set_z_index(3)
+        tbn = MathTable("n").scale(0.8).next_to(bn, DOWN).set_z_index(3)
+
+        with self.voiceover(text="而这一次,我们可以看到数字每次都是更小,所以每一次的分堆的情况,都是一堆,所以,我们每次遍历的数字仍然是n,但是我们由于没有将数组进行过1次二分, 所以高度也是n.这样, 我们的算法复杂度就变成了 n 平方") as tracker:
+            self.add(lgbn, tlgbn, bn, tbn)
 
         self.wait() 
