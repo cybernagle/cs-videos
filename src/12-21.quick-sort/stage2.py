@@ -185,10 +185,15 @@ class quicksortStage2(VoiceoverScene):
             self.play(Write(sum))
         
         # 然而, 并不是所有的比较都会发生的, 比如说, 小堆里面选择的中间数, 和大堆就不会再比较了.
-        with self.voiceover(text="然而, 并不是所有的比较都会发生的, 比如说, 小堆里面选择的中间数, 和大堆就不会再比较了.所以说, 一部分的比较是不会发生的.") as tracker:
+        with self.voiceover(text="然而, 并不是所有的比较都会发生的, 比如说, 小堆里面选择的中间数<bookmark mark='A'/>, 和大堆就不会再比较了.所以说, 一部分的比较是不会发生的.") as tracker:
+            self.wait_until_bookmark("A")
             self.play(Indicate(demo[0]))
             self.play(Indicate(demo[5:]))
         self.clear_except(compare)
+
+        # 这样, 我们只要计算出在随机中间数的情况下发生次数的可能性, 我们就能够得到我们算法的复杂度了.
+        with self.voiceover(text="这样, 我们只要计算出在随机中间数的情况下发生次数的可能性, 我们就能够得到我们算法的复杂度了.") as tracker:
+            self.play(compare.animate.shift(LEFT*4+UP*2))
 
         compare0 = MathTex("=\ Prob\{Z_i\ compare\ to\ Z_j\}").next_to(compare, RIGHT)
         compare1 = MathTex("=\ Prob\{Z_i\ or Z_j\ is\ pivot\}").next_to(compare0, DOWN)
@@ -196,16 +201,13 @@ class quicksortStage2(VoiceoverScene):
         #1/(j-i+1)
         compare3 = MathTex("=\ \\frac{1}{j-i+1} + \\frac{1}{j-i+1}").next_to(compare2, DOWN)
         compare4 = MathTex("=\ \\frac{2}{j-i+1}").next_to(compare3, DOWN)
-        # 这样, 我们只要计算出在随机中间数的情况下发生次数的可能性, 我们就能够得到我们算法的复杂度了.
-        with self.voiceover(text="这样, 我们只要计算出在随机中间数的情况下发生次数的可能性, 我们就能够得到我们算法的复杂度了.") as tracker:
-            self.play(compare.animate.shift(LEFT*4+UP*2))
 
-        # Z_i 和 Z_j 之间发生了比较.
+        # Z i 和 Z j 之间发生了比较.
         # 可以被表达为我们在数组当中Z i 被选为中间数,或者 Z j 被选为中间数.
         # 这样, 我们就可以得出, 发生比较的可能性, 就是 Z i 被选为中间数的可能性, 加上 Z j 被选为中间数的可能性.
         # 然后我们就能够得出一个比较的时间复杂度.
         single_compare = """
-        Z_i 和 Z_j 之间发生了<bookmark mark='A'/>比较.
+        Z i 和 Z j 之间发生了<bookmark mark='A'/>比较.
         可以被表达为我们在数组当中<bookmark mark='B'/>Z i 被选为中间数,或者 Z j 被选为中间数.
         这样, 我们就可以得出, 发生比较的可能性, 就是<bookmark mark='C'/> Z i 被选为中间数的可能性, 加上 Z j 被选为中间数的可能性.
         <bookmark mark='D'/>
@@ -225,6 +227,7 @@ class quicksortStage2(VoiceoverScene):
 
         self.clear()
 
+        sum.shift(LEFT*4+UP*3.5)
         sum0 = MathTex(r"=\ \sum_{i=1}^{n-1} \sum_{j=i+1}^{n} \frac{2}{j-i+1}").next_to(sum, RIGHT)
         sum1 = MathTex(r"=\ \sum_{i=1}^{n-1} \sum_{k=1}^{n-i} \frac{2}{k+1}").next_to(sum0, DOWN)
         sum2 = MathTex(r"=\ \sum_{i=1}^{n-1} \sum_{k=1}^{n} \frac{2}{k}").next_to(sum1, DOWN)
@@ -233,7 +236,6 @@ class quicksortStage2(VoiceoverScene):
         # 把这个结果, 代入到我们的求和公式, 进行进一步的演算, 就可以得到我们的算法复杂度为 O(n*logn) 了
         with self.voiceover(text="把这个结果, 代入到我们的求和公式, 进行进一步的演算, 就可以得到我们的算法复杂度为 O(n*logn) 了") as tracker:
             self.play(Create(sum))
-            self.play(sum.animate.shift(LEFT*4+UP*3.5))
             self.play(Create(sum0))
             self.play(Create(sum1))
             self.play(Create(sum2))
