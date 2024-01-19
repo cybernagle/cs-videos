@@ -50,8 +50,9 @@ b.trace_print()
 `b.get_syscall_fnname("execve")` 将这个字节码程序附加到了 execve 系统调用.
 这样, 当操作系统每次执行 execve 的时候, bpf 虚拟机当中字节码就会被执行. 并且在标准输出打印 "Hello World!"
 
-如下所示
+如下所示:
 
-![](ebpfhello.mov)
-
+<video width="320" height="240" controls>
+  <source src="ebpfhello.mov" type="video/mov">
+</video>
 
