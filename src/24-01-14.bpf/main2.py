@@ -81,8 +81,25 @@ class BpfExample(VoiceoverScene):
         super().__init__()
         self.camera.background_color = BACKGROUND
 
+    def computer_voice(self):
+        self.set_speech_service(
+            AzureService(
+                voice="zh-CN-YunhaoNeural",
+                style="newscast-casual",
+            )
+        )
+
+    def human_voice(self):
+        self.set_speech_service(
+            AzureService(
+                voice="zh-CN-XiaomengNeural",
+                style="newscast-casual",
+            )
+        )
+
     def construct(self):
 
+        self.human_voice()
         kernel = Rectangle(width=2, height=2, color=OBJ_A).shift(LEFT*2)
         tkernel = Text("内核态").scale(0.5).next_to(kernel, UP)
         user = Rectangle(width=2, height=2, color=OBJ_B).shift(RIGHT*2)
@@ -94,33 +111,43 @@ class BpfExample(VoiceoverScene):
 
         kcode.next_to(kernel, DOWN*1.5)
 
-        #内核一般分为用户态和内核态, 内核态将负责对硬件进行调度工作, 而用户态则根据内核态的各种系统调用.
-        self.play(FadeIn(os))
-
-        #ebpf 程序, 会分为两个部分, 用户态代码, 及内核态代码. 
-        self.play(FadeIn(kcode))
+        # 接下来我们看看一个小的 ebpf 程序是什么样的. 我们知道内核一般分为用户态和内核态, 内核态将负责对硬件进行调度工作, 而用户态则根据内核态的各种系统调用.
+        littleebpf = "接下来我们看看一个小的 eBPF 程序是什么样的. 我们知道内核一般分为用户态和内核态, 内核态<bookmark mark='A'/>将负责对硬件进行调度工作, 而用户态<bookmark mark='B'/>则根据内核态的各种系统调用实现各种服务或应用."
+        with self.voiceover(text=littleebpf) as tracker:
+            self.play(FadeIn(os))
+            self.wait_until_bookmark("A")
+            self.play(Indicate(kernel))
+            self.wait_until_bookmark("B")
+            self.play(Indicate(user))
 
         ucode.next_to(kcode, RIGHT)
-
-        self.play(FadeIn(ucode))
+        #ebpf 程序, 会分为两个部分, 用户态代码, 及内核态代码. 
+        twopart = "eBPF 程序, 会分为两个部分, 用户态代码<bookmark mark='A'/>, 以及内核态<bookmark mark='B'/>代码. "
+        with self.voiceover(text=twopart) as tracker:
+            self.wait_until_bookmark("A")
+            self.play(FadeIn(kcode))
+            self.wait_until_bookmark("B")
+            self.play(FadeIn(ucode))
 
         #前者可以是 c,rust, 经过编译后, 会转换为 ebpf 虚拟机的字节码, 在 bpf 虚拟机当中运行. 
-        self.play(Indicate(kcode))
+
+        prev = "前者<bookmark mark='A'/>可以是 C,RUST, 经过编译后, 会转换为 eBPF 虚拟机的<bookmark mark='B'/>字节码, 在 bpf 虚拟机当中运行. "
         kkcode = kcode.copy()
-        self.play(kkcode.animate.scale(0.1).move_to(kernel))
+        with self.voiceover(text=prev) as tracker:
+            self.wait_until_bookmark("A")
+            self.play(Indicate(kcode))
+            self.wait_until_bookmark("B")
+            self.play(kkcode.animate.scale(0.2).move_to(kernel))
 
         # 用户态的程序, 可以通过 bpf map 来获取 bpf 字节码获取到的内容.
-        self.play(Indicate(ucode))
-        self.play(ucode.copy().animate.scale(0.1).move_to(user))
-        arrow = Arrow(user.get_left(), kernel.get_right())
-        self.play(GrowArrow(arrow))
-
-        #上面的程序可以被分为两个部分, 第一行 bpf 是 bpf 程序本身, 被编译后,会变成字节码在 bpf 虚拟机当中执行.
-        #`b.get_syscall_fnname("execve")` 将这个字节码程序附加到了 execve 系统调用.
-        #这样, 当操作系统每次执行 execve 的时候, bpf 虚拟机当中字节码就会被执行. 并且在标准输出打印 "Hello World!"
-        #
-        #如下所示:
-        #
-        #<video width="320" height="240" controls>
-        #  <source src="ebpfhello.mov" type="video/mov">
-        #</video>
+        next = "用户态的<bookmark mark='A'/>程序, 可以通过 BPF map 来获取<bookmark mark='B'/>前者字节码所产生的内容."
+        with self.voiceover(text=next) as tracker:
+            self.wait_until_bookmark("A")
+            self.play(Indicate(ucode))
+            self.play(ucode.copy().animate.scale(0.1).move_to(user))
+            arrow = Arrow(user.get_left(), kernel.get_right())
+            self.wait_until_bookmark("B")
+            self.play(GrowArrow(arrow))
+        final = "最后让我们来看一下代码的运行结果, 可以看到, 当操作系统执行 EXECVE 的时候, BPF 虚拟机当中字节码就会被执行. 并且在标准输出打印 I'm BPF Program!!"
+        with self.voiceover(text=final):
+            pass
