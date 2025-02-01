@@ -135,6 +135,58 @@ class QuantitativeEngineer(MovingCameraScene, VoiceoverScene):
 
         self.wait(2)
 
+    def compute_alpha(self):
+        # Create the computer image
+        computer = ImageMobject(f"{IMAGE}/laptop.png").scale(0.8)
+        self.play(FadeIn(computer))
+
+        # Create the text below the computer
+        linear_regression_text = MathTex(
+            r"\text{linear regression: } \alpha + b_1x_1 + b_2x_2 + b_3x_3 + \dots + b_nx_n",
+            color=BLACK
+        ).scale(0.8).next_to(computer, DOWN, buff=0.5)
+        self.play(
+            FadeIn(linear_regression_text)
+        )
+
+        # Create historical data text on the left
+        historical_data = Text("历史数据", font_size=30, color=BLACK).shift( LEFT * 5 )
+        arrow_to_computer = Arrow(
+            start=historical_data.get_right(),
+            end=computer.get_left(),
+            buff=0.5, color=BLACK
+        )
+
+        self.play(
+            FadeIn(historical_data),
+            FadeIn(arrow_to_computer)
+        )
+
+        # Create an arrow from the computer to the right
+        arrow_to_right = Arrow(start=computer.get_right(), end=RIGHT * 5, buff=0.5, color=BLACK)
+        alpha_label = MathTex(r"\alpha", color=BLACK).scale(0.8).next_to(
+            arrow_to_right,RIGHT , buff=0.5
+        ).shift(UP*0.2)
+        beta_label = MathTex(r"\beta", color=BLACK).scale(0.8).next_to(
+            arrow_to_right, RIGHT, buff=0.5
+        ).shift(DOWN*0.2)
+
+        self.play(Write(arrow_to_right))
+        self.play(FadeIn(alpha_label),FadeIn(beta_label))
+
+    def alpha_perf(self):
+        alpha = MathTex(r"\alpha", font_size=144, color=BLACK)
+
+        equation = MathTex(
+            r"\alpha = \begin{cases} "
+            r" Volatility \\"
+            r" Momentum \\"
+            r" Macro Factors \\"
+            r" \dots "
+            r"\end{cases}", color=BLACK
+        )
+        self.play(Write(equation))
+
     def construct(self):
         self.human_voice()
 
@@ -155,3 +207,5 @@ class QuantitativeEngineer(MovingCameraScene, VoiceoverScene):
         """
         # self.curve()
         # self.portfolio_instance()
+        # self.compute_alpha()
+        self.alpha_perf()
