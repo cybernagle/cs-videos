@@ -4,13 +4,6 @@ from manim_voiceover import VoiceoverScene
 from manim.scene.moving_camera_scene import MovingCameraScene
 from manim_voiceover.services.azure import AzureService
 
-
-# import numpy as np
-
-# below code did not work
-# import manimforge as mf
-# mf.setup()
-
 WORD_A="#00CED1"
 WORD_B="#FFD700"
 OBJ_A="#3EB489"
